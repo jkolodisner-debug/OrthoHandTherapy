@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrthoMotion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen welcome-screen">
+      <section class="hero-column">
+        <p class="eyebrow">OrthoMotion</p>
+        <h1>Daily recovery, built one step at a time.</h1>
+        <p class="support-copy">
+          A simple orthopedic recovery experience for post-op patients: sign in,
+          choose the body part, check your streak, and jump right into today's
+          exercises.
+        </p>
+        <ul class="hero-list">
+          <li>Simple daily rehab flow</li>
+          <li>Body-part specific recovery plans</li>
+          <li>Clear progress and streak tracking</li>
+        </ul>
+        <p class="welcome-user">Last user: <span id="welcome-name">New patient</span></p>
+      </section>
+
+      <section class="card auth-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" type="button" data-auth-mode="signin">Sign in</button>
+          <button class="auth-tab" type="button" data-auth-mode="create">Create account</button>
+        </div>
+
+        <p class="eyebrow">Welcome</p>
+        <h2 id="auth-title">Welcome back</h2>
+        <p class="support-copy" id="auth-subtitle">
+          Pick up your recovery plan where you left off.
+        </p>
+
+        <form id="auth-form" class="auth-form">
+          <div id="name-group" class="form-group">
+            <label for="name-input">Username</label>
+            <input id="name-input" name="name" type="text" placeholder="Choose a username" />
+          </div>
+          <div id="identifier-group" class="form-group">
+            <label for="email-input" id="identifier-label">Username or email</label>
+            <input id="email-input" name="email" type="text" placeholder="Enter your username or email" />
+          </div>
+          <label for="password-input">Password</label>
+          <input id="password-input" name="password" type="password" placeholder="Enter your password" />
+          <p class="auth-hint" id="auth-hint"></p>
+          <p class="auth-error" id="auth-error"></p>
+          <button class="primary-button large-button" id="submit-button" type="submit">Sign in</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="welcome.js"></script>
+  </body>
+</html>

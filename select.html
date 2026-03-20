@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select Body Part</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <a class="nav-link" id="nav-back" href="./index.html">Back</a>
+    </header>
+    <main class="screen screen-centered">
+      <section class="card simple-card">
+        <p class="eyebrow">Select body part</p>
+        <h1>Where are you recovering?</h1>
+        <p class="support-copy">
+          <span id="user-label">Patient</span>, choose one area to load your plan.
+        </p>
+        <div class="body-options" id="body-options"></div>
+      </section>
+    </main>
+
+    <template id="body-option-template">
+      <button class="body-option" type="button">
+        <span class="body-card-image"></span>
+        <span>
+          <strong class="option-title"></strong>
+          <span class="option-subtitle"></span>
+        </span>
+      </button>
+    </template>
+
+    <script src="data.js"></script>
+    <script src="select.js"></script>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recovery Progress</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <a class="nav-link" id="nav-back" href="./index.html">Back</a>
+    </header>
+    <main class="screen screen-centered">
+      <section class="card progress-card">
+        <p class="eyebrow">Welcome back</p>
+        <h1><span id="progress-name">Patient</span>, you've made strong progress.</h1>
+        <p class="support-copy">Your <span id="progress-body-part">Knee</span> plan is ready to continue. Here's how much you've completed so far.</p>
+
+        <div class="stat-grid">
+          <article class="stat-box">
+            <span class="stat-label">Current streak</span>
+            <strong id="streak-count">0 days</strong>
+          </article>
+          <article class="stat-box">
+            <span class="stat-label">Sessions done</span>
+            <strong id="completed-count">0 / 0</strong>
+          </article>
+        </div>
+
+        <section class="progress-panel">
+          <div class="progress-header">
+            <span>Program progress</span>
+            <strong id="progress-percent">0% complete</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </section>
+
+        <a class="primary-button large-button" id="continue-button" href="./today.html">Continue</a>
+      </section>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="progress.js"></script>
+  </body>
+</html>

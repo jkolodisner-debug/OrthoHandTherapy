@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Today's Exercise Plan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <a class="nav-link" id="nav-back" href="./progress.html">Back</a>
+    </header>
+    <main class="screen">
+      <section class="card session-card">
+        <div class="session-header">
+          <div>
+            <p class="eyebrow">Today's plan</p>
+            <h1><span id="plan-name">Knee</span> recovery</h1>
+          </div>
+          <span class="day-pill" id="day-label">Day 1</span>
+        </div>
+
+        <div class="focus-card">
+          <span class="stat-label">Focus</span>
+          <p id="focus-text"></p>
+        </div>
+
+        <div class="exercise-list" id="exercise-list"></div>
+
+        <button class="primary-button large-button" id="finish-button" type="button">Complete and log out</button>
+        <p class="completion-message" id="completion-message"></p>
+      </section>
+    </main>
+
+    <template id="exercise-template">
+      <label class="exercise-item">
+        <input type="checkbox" />
+        <span class="exercise-check"></span>
+        <span class="exercise-content">
+          <strong class="exercise-title"></strong>
+          <span class="exercise-dose"></span>
+          <span class="exercise-tip"></span>
+        </span>
+      </label>
+    </template>
+
+    <script src="data.js"></script>
+    <script src="today.js"></script>
+  </body>
+</html>
