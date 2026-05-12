@@ -3,6 +3,9 @@ const signinEmail = document.querySelector("#signin-email");
 const signinPassword = document.querySelector("#signin-password");
 const signinMessage = document.querySelector("#signin-message");
 const signinPasswordToggle = document.querySelector("#signin-password-toggle");
+const signinRemember = document.querySelector("#signin-remember");
+
+signinRemember.checked = true;
 
 signinPasswordToggle.addEventListener("click", () => {
   const shouldShow = signinPassword.type === "password";
@@ -18,7 +21,8 @@ signinForm.addEventListener("submit", async (event) => {
   try {
     await apiSignInClinician({
       email: signinEmail.value.trim(),
-      password: signinPassword.value
+      password: signinPassword.value,
+      rememberOnDevice: signinRemember.checked
     });
     signinMessage.textContent = "";
     window.location.href = "./select.html";

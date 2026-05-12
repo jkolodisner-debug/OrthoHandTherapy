@@ -6,8 +6,8 @@ const SESSION_STORAGE_KEYS = {
   activePatientRecord: "orthoMotionActivePatientRecord"
 };
 
-function readSessionStorage(key, fallback) {
-  const raw = localStorage.getItem(key);
+function readStorageValue(storage, key, fallback) {
+  const raw = storage.getItem(key);
   if (!raw) {
     return fallback;
   }
@@ -19,8 +19,25 @@ function readSessionStorage(key, fallback) {
   }
 }
 
-function saveSessionStorage(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+function readSessionStorage(key, fallback) {
+  const sessionValue = readStorageValue(sessionStorage, key, undefined);
+  if (sessionValue !== undefined) {
+    return sessionValue;
+  }
+
+  return readStorageValue(localStorage, key, fallback);
+}
+
+function getClinicianSessionStorage() {
+  if (sessionStorage.getItem(SESSION_STORAGE_KEYS.clinicianSession)) {
+    return sessionStorage;
+  }
+
+  return localStorage;
+}
+
+function saveSessionStorage(key, value, storage = localStorage) {
+  storage.setItem(key, JSON.stringify(value));
 }
 
 async function apiRequest(path, options = {}) {
@@ -55,12 +72,24 @@ function getClinicianSession() {
   return readSessionStorage(SESSION_STORAGE_KEYS.clinicianSession, null);
 }
 
-function saveClinicianSession(clinician) {
-  saveSessionStorage(SESSION_STORAGE_KEYS.clinicianSession, clinician);
+function saveClinicianSession(clinician, rememberOnDevice = null) {
+  const existingStorage = getClinicianSessionStorage();
+  localStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
+
+  const targetStorage =
+    rememberOnDevice === null
+      ? existingStorage
+      : rememberOnDevice
+        ? localStorage
+        : sessionStorage;
+
+  saveSessionStorage(SESSION_STORAGE_KEYS.clinicianSession, clinician, targetStorage);
 }
 
 function clearClinicianSession() {
   localStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
 }
 
 function getCurrentClinicianId() {
@@ -107,16 +136,16 @@ async function apiCreateClinicianAccount({ firstName, lastName, email, password 
     method: "POST",
     body: JSON.stringify({ firstName, lastName, email, password })
   });
-  saveClinicianSession(payload.clinician);
+  saveClinicianSession(payload.clinician, true);
   return payload.clinician;
 }
 
-async function apiSignInClinician({ email, password }) {
+async function apiSignInClinician({ email, password, rememberOnDevice = false }) {
   const payload = await apiRequest("/clinician/signin", {
     method: "POST",
     body: JSON.stringify({ email, password })
   });
-  saveClinicianSession(payload.clinician);
+  saveClinicianSession(payload.clinician, rememberOnDevice);
   return payload.clinician;
 }
 
