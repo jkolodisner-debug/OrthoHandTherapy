@@ -190,6 +190,17 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+function parseDailyCount(value) {
+  const text = `${value || ""}`.trim().toLowerCase();
+  const match = text.match(/^(\d+)(?:\s*x)?(?:\s+daily)?$/);
+  if (!match) {
+    return null;
+  }
+
+  const count = Number(match[1]);
+  return Number.isFinite(count) && count > 0 ? count : null;
+}
+
 function makeLibraryItem(category, name) {
   const lowerName = name.toLowerCase();
   const requiresPrescription =

@@ -52,7 +52,8 @@ async function renderToday() {
     const swellingInput = item.querySelector(".swelling-input");
     const symptomNotesInput = item.querySelector(".symptom-notes-input");
     const entry = todayLog[assignedItem.id] || {};
-    const targetCount = Math.max(1, Number(assignedItem.daily_target_count) || 1);
+    const inferredTarget = parseDailyCount(assignedItem.default_frequency);
+    const targetCount = Math.max(1, Number(assignedItem.daily_target_count) || inferredTarget || 1);
     let completedCount = Math.max(0, Math.min(targetCount, Number(entry.completed_count) || 0));
 
     item.querySelector(".exercise-title").textContent = assignedItem.name;
@@ -159,7 +160,7 @@ finishButton.addEventListener("click", async () => {
   const allLogs = getDailyItemLog(activeRecord);
   const completedCount = assignedItems.filter((item) => {
     const itemLog = allLogs[item.id] || {};
-    const targetCount = Math.max(1, Number(item.daily_target_count) || 1);
+    const targetCount = Math.max(1, Number(item.daily_target_count) || parseDailyCount(item.default_frequency) || 1);
     return (Number(itemLog.completed_count) || 0) >= targetCount;
   }).length;
   const totalCount = assignedItems.length;

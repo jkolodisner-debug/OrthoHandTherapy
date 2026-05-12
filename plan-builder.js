@@ -22,6 +22,16 @@ function updateSaveState() {
   savePlanButton.disabled = assignedItemIds.size === 0;
 }
 
+function normalizeFrequencyLabel(value) {
+  const raw = `${value || ""}`.trim();
+  const count = parseDailyCount(raw);
+  if (!count) {
+    return raw;
+  }
+
+  return `${count}x daily`;
+}
+
 function syncAssignedItem(card, isChecked) {
   card.classList.toggle("is-active", isChecked);
   card.querySelectorAll("textarea, input[type='text'], input[type='number']").forEach((field) => {
@@ -80,7 +90,7 @@ function renderCategoryEditors() {
 
       checkbox.checked = isChecked;
       descriptionInput.value = saved.patient_friendly_description;
-      frequencyInput.value = saved.default_frequency;
+      frequencyInput.value = normalizeFrequencyLabel(saved.default_frequency);
       doseInput.value = saved.default_sets_reps_duration;
       targetInput.value = targetCount;
       warningInput.value = saved.contraindication_warning;
@@ -134,9 +144,14 @@ function collectAssignedItems() {
       items.push({
         ...item,
         patient_friendly_description: card.querySelector(".description-input").value.trim() || item.patient_friendly_description,
-        default_frequency: card.querySelector(".frequency-input").value.trim() || item.default_frequency,
+        default_frequency: normalizeFrequencyLabel(card.querySelector(".frequency-input").value.trim()) || item.default_frequency,
         default_sets_reps_duration: card.querySelector(".dose-input").value.trim() || item.default_sets_reps_duration,
-        daily_target_count: Math.max(1, Number(card.querySelector(".target-input").value) || 1),
+        daily_target_count: Math.max(
+          1,
+          Number(card.querySelector(".target-input").value) ||
+            parseDailyCount(card.querySelector(".frequency-input").value.trim()) ||
+            1
+        ),
         contraindication_warning: card.querySelector(".warning-input").value.trim() || item.contraindication_warning,
         pain_stop_rule: card.querySelector(".pain-stop-input").value.trim() || item.pain_stop_rule,
         progression_notes: card.querySelector(".progression-input").value.trim() || item.progression_notes,
