@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Patient IDs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=12" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <a class="nav-link" href="./select.html">Clinician portal</a>
+    </header>
+    <main class="screen screen-centered">
+      <section class="card progress-card">
+        <p class="eyebrow">Patient roster</p>
+        <h1>All patient IDs on this device</h1>
+        <p class="support-copy" id="patients-subtitle">
+          Review saved patient IDs, recent progress, and jump straight into status tracking or plan editing.
+        </p>
+
+        <div class="patient-list" id="patient-list"></div>
+        <p class="completion-message" id="patients-message"></p>
+        <div class="portal-grid compact-grid">
+          <a class="nav-link large-button" href="./account.html">Account details</a>
+          <a class="nav-link large-button" href="./index.html">Return home</a>
+        </div>
+      </section>
+    </main>
+
+    <template id="patient-row-template">
+      <article class="patient-row-card">
+        <div class="patient-row-header">
+          <div>
+            <span class="stat-label">Patient ID</span>
+            <strong class="patient-row-id"></strong>
+          </div>
+          <div class="patient-row-stats">
+            <span class="patient-row-stat"></span>
+            <span class="patient-row-stat"></span>
+          </div>
+        </div>
+        <div class="patient-row-actions">
+          <button class="primary-button inline-button patient-status-button" type="button">Open status</button>
+          <button class="nav-link inline-button patient-edit-button" type="button">Edit plan</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="data.js?v=12"></script>
+    <script src="patients.js?v=12"></script>
+  </body>
+</html>

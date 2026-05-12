@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Account Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=12" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <a class="nav-link" href="./select.html">Clinician portal</a>
+    </header>
+    <main class="screen screen-centered">
+      <section class="card simple-card">
+        <p class="eyebrow">Create account</p>
+        <h1>Create clinician account</h1>
+        <p class="support-copy">
+          This local prototype can save a clinician account on this device with first name, last name, email, and password. We can replace this with real Firebase Auth next.
+        </p>
+        <form class="auth-form" id="account-form">
+          <label class="builder-field">
+            <span>First name</span>
+            <input id="first-name-input" type="text" />
+          </label>
+          <label class="builder-field">
+            <span>Last name</span>
+            <input id="last-name-input" type="text" />
+          </label>
+          <label class="builder-field">
+            <span>Email</span>
+            <input id="email-input" type="email" />
+          </label>
+          <label class="builder-field">
+            <span>Password</span>
+            <input id="password-input" type="password" />
+          </label>
+          <button class="primary-button large-button" type="submit">Create clinician account</button>
+        </form>
+        <p class="completion-message" id="account-message"></p>
+        <div class="portal-grid compact-grid">
+          <a class="nav-link large-button" href="./patients.html">See all patient IDs</a>
+          <a class="nav-link large-button" href="./index.html">Return home</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="data.js?v=12"></script>
+    <script src="account.js?v=12"></script>
+  </body>
+</html>

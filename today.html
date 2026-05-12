@@ -3,54 +3,115 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Today's Exercise Plan</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Today's Hand Plan</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=12" />
   </head>
   <body>
     <header class="top-nav">
-      <a class="nav-link" id="nav-back" href="./progress.html">Back</a>
+      <a class="nav-link" href="./progress.html">Back</a>
+      <a class="nav-link" href="./index.html">Home</a>
     </header>
     <main class="screen">
       <section class="card session-card">
         <div class="session-header">
           <div>
-            <p class="eyebrow">Today's plan</p>
-            <h1><span id="plan-name">Knee</span> recovery</h1>
+            <p class="eyebrow">Daily checklist</p>
+            <h1><span id="plan-name">Assigned hand</span> recovery</h1>
+            <p class="support-copy session-subcopy">Patient ID: <span id="patient-code">Not loaded</span></p>
           </div>
           <span class="day-pill" id="day-label">Day 1</span>
         </div>
 
         <div class="focus-card">
-          <span class="stat-label">Focus</span>
+          <span class="stat-label">Reminder</span>
           <p id="focus-text"></p>
+        </div>
+
+        <div class="safety-banner compact-safety">
+          <strong>Safety</strong>
+          <ul class="safety-list" id="today-safety-list"></ul>
         </div>
 
         <div class="exercise-list" id="exercise-list"></div>
 
-        <button class="primary-button large-button" id="finish-button" type="button">Complete and log out</button>
+        <button class="primary-button large-button" id="finish-button" type="button">Complete today's session</button>
         <p class="completion-message" id="completion-message"></p>
       </section>
     </main>
 
+    <div class="completion-overlay hidden" id="completion-overlay" aria-live="polite">
+      <div class="completion-popup">
+        <span class="completion-badge">Session Complete</span>
+        <h2>Great work!</h2>
+        <p id="overlay-streak-message">You have an 0 day streak!</p>
+      </div>
+    </div>
+
+    <div class="completion-overlay hidden" id="partial-overlay" aria-live="polite">
+      <div class="completion-popup partial-popup">
+        <span class="completion-badge">Continue Later</span>
+        <h2>You have not completed all of your exercises.</h2>
+        <p>Would you like to continue later?</p>
+        <div class="popup-actions">
+          <button class="nav-link popup-button" id="resume-button" type="button">Keep going</button>
+          <button class="primary-button popup-button" id="later-button" type="button">Continue later</button>
+        </div>
+      </div>
+    </div>
+
     <template id="exercise-template">
-      <label class="exercise-item">
-        <input type="checkbox" />
-        <span class="exercise-check"></span>
-        <span class="exercise-content">
-          <strong class="exercise-title"></strong>
-          <span class="exercise-dose"></span>
-          <span class="exercise-tip"></span>
-        </span>
-      </label>
+      <div class="exercise-card-shell">
+        <label class="exercise-item">
+          <span class="exercise-content">
+            <strong class="exercise-title"></strong>
+            <span class="exercise-dose"></span>
+            <span class="exercise-progress-text"></span>
+          </span>
+        </label>
+        <div class="completion-chip-row"></div>
+        <button class="exercise-toggle" type="button">View details</button>
+        <div class="exercise-detail-panel hidden">
+          <p class="exercise-tip"></p>
+          <p class="warning-copy exercise-warning"></p>
+          <div class="detail-grid">
+            <label class="builder-field">
+              <span>Pain before</span>
+              <input class="pain-before-input" type="number" min="0" max="10" placeholder="0-10" />
+            </label>
+            <label class="builder-field">
+              <span>Pain after</span>
+              <input class="pain-after-input" type="number" min="0" max="10" placeholder="0-10" />
+            </label>
+          </div>
+          <label class="builder-field">
+            <span>Swelling response</span>
+            <select class="swelling-input">
+              <option value="">Select one</option>
+              <option value="no-change">No change</option>
+              <option value="better">Better</option>
+              <option value="more-swollen">More swollen</option>
+              <option value="more-tight">More tight</option>
+            </select>
+          </label>
+          <label class="builder-field">
+            <span>Symptom notes</span>
+            <textarea class="symptom-notes-input" rows="2" placeholder="Add numbness, tingling, wound concerns, or anything to report."></textarea>
+          </label>
+          <p class="exercise-link-placeholder">Insert how-to links here for YouTube videos.</p>
+        </div>
+      </div>
     </template>
 
-    <script src="data.js"></script>
-    <script src="today.js"></script>
+    <script src="data.js?v=12"></script>
+    <script src="today.js?v=12"></script>
   </body>
 </html>

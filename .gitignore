@@ -1,3 +1,4 @@
 users.db
 .Rhistory
 __pycache__/
+firebase-config.js

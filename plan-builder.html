@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Plan Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=12" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <a class="nav-link" href="./category-select.html">Back to Step 1</a>
+    </header>
+    <main class="screen">
+      <section class="card builder-card">
+        <p class="eyebrow">Clinician portal</p>
+        <h1>Step 2: Edit exercise settings</h1>
+        <p class="support-copy">
+          Open only the categories you selected in Step 1, choose the exercises or tasks you want assigned, and then save to generate or update the patient ID.
+        </p>
+
+        <div class="status-header-card">
+          <span class="stat-label">Working patient</span>
+          <strong id="active-patient-label">New patient plan</strong>
+        </div>
+
+        <section class="builder-section">
+          <div class="builder-heading">
+            <div>
+              <span class="stat-label">Selected categories</span>
+              <h2>Exercise and task settings</h2>
+            </div>
+          </div>
+          <div class="category-editors" id="category-editors"></div>
+        </section>
+
+        <section class="builder-section">
+          <div class="builder-heading">
+            <div>
+              <span class="stat-label">Plan notes</span>
+              <h2>Clinician notes</h2>
+            </div>
+          </div>
+          <label class="builder-field">
+            <span>Clinician plan notes</span>
+            <textarea id="clinician-plan-notes" rows="4" placeholder="Add overall precautions, reminders, or progression notes for the patient dashboard."></textarea>
+          </label>
+        </section>
+
+        <p class="completion-message" id="builder-message"></p>
+        <button class="primary-button large-button" id="save-plan-button" type="button" disabled>Save assigned plan</button>
+        <div class="portal-grid compact-grid">
+          <a class="nav-link large-button" href="./patients.html">See all patient IDs</a>
+          <a class="nav-link large-button" href="./account.html">Account details</a>
+        </div>
+      </section>
+    </main>
+
+    <div class="completion-overlay hidden" id="patient-id-overlay" aria-live="polite">
+      <div class="completion-popup partial-popup">
+        <span class="completion-badge">Create patient ID</span>
+        <h2>Patient ID created</h2>
+        <p>Share this code with the patient so they can open their assigned checklist.</p>
+        <div class="code-pill" id="created-patient-id">HND-XXXXXX</div>
+        <div class="popup-actions">
+          <button class="primary-button popup-button" id="return-portal-button" type="button">Return to clinician portal</button>
+        </div>
+      </div>
+    </div>
+
+    <template id="category-editor-template">
+      <section class="category-editor">
+        <button class="category-editor-toggle" type="button">
+          <div>
+            <span class="stat-label category-step-label"></span>
+            <h3 class="category-editor-title"></h3>
+          </div>
+          <div class="category-editor-actions">
+            <span class="toggle-chevron">+</span>
+          </div>
+        </button>
+        <div class="category-editor-body hidden">
+          <p class="support-copy category-editor-description"></p>
+          <p class="warning-copy category-editor-warning"></p>
+          <div class="assigned-item-list"></div>
+        </div>
+      </section>
+    </template>
+
+    <template id="assigned-item-template">
+      <article class="assigned-item-card">
+        <div class="assigned-item-header">
+          <label class="assigned-item-toggle">
+            <input class="assigned-item-checkbox" type="checkbox" />
+            <span>
+              <strong class="assigned-item-title"></strong>
+              <span class="assigned-item-meta"></span>
+            </span>
+          </label>
+          <button class="assigned-item-details-toggle nav-link inline-button" type="button">
+            <span class="assigned-item-toggle-text">Show item settings</span>
+            <span class="assigned-item-toggle-chevron">+</span>
+          </button>
+        </div>
+        <div class="assigned-item-fields hidden">
+          <label class="builder-field">
+            <span>Patient-friendly description</span>
+            <textarea class="description-input" rows="2"></textarea>
+          </label>
+          <div class="builder-grid">
+            <label class="builder-field">
+              <span>Frequency</span>
+              <input class="frequency-input" type="text" />
+            </label>
+            <label class="builder-field">
+              <span>Sets / reps / duration</span>
+              <input class="dose-input" type="text" />
+            </label>
+            <label class="builder-field">
+              <span>Required daily completions</span>
+              <input class="target-input" type="number" min="1" step="1" />
+            </label>
+          </div>
+          <label class="builder-field">
+            <span>Contraindication warning</span>
+            <textarea class="warning-input" rows="2"></textarea>
+          </label>
+          <label class="builder-field">
+            <span>Pain stop rule</span>
+            <textarea class="pain-stop-input" rows="2"></textarea>
+          </label>
+          <label class="builder-field">
+            <span>Progression notes</span>
+            <textarea class="progression-input" rows="2"></textarea>
+          </label>
+          <label class="builder-field">
+            <span>Therapist notes</span>
+            <textarea class="therapist-notes-input" rows="2" placeholder="Optional patient-facing note."></textarea>
+          </label>
+        </div>
+      </article>
+    </template>
+
+    <script src="data.js?v=12"></script>
+    <script src="plan-builder.js?v=12"></script>
+  </body>
+</html>

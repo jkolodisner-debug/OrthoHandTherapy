@@ -1,30 +1,23 @@
-const userLabel = document.querySelector("#user-label");
-const bodyOptions = document.querySelector("#body-options");
-const optionTemplate = document.querySelector("#body-option-template");
+const newPatientLink = document.querySelector("#new-patient-link");
+const trackPatientForm = document.querySelector("#track-patient-form");
+const trackPatientId = document.querySelector("#track-patient-id");
+const trackMessage = document.querySelector("#track-message");
 
-const user = getUser();
-if (user) {
-  userLabel.textContent = user.name;
-}
+newPatientLink.addEventListener("click", () => {
+  clearActivePatientId();
+  clearClinicianDraft();
+});
 
-Object.entries(RECOVERY_PLANS).forEach(([planId, plan]) => {
-  const option = optionTemplate.content.firstElementChild.cloneNode(true);
-  option.querySelector(".body-card-image").innerHTML = plan.image;
-  option.querySelector(".option-title").textContent = plan.name;
-  option.querySelector(".option-subtitle").textContent = plan.subtitle;
-  option.addEventListener("click", async () => {
-    if (!user?.id) {
-      window.location.href = "./index.html";
-      return;
-    }
+trackPatientForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const record = activatePatientById(trackPatientId.value);
 
-    try {
-      const response = await savePlanSelection(user.id, planId);
-      saveUser(response.user);
-      window.location.href = "./progress.html";
-    } catch (error) {
-      userLabel.textContent = error.message;
-    }
-  });
-  bodyOptions.appendChild(option);
+  if (!record) {
+    trackMessage.textContent = "That patient ID was not found on this device.";
+    return;
+  }
+
+  syncDraftFromActivePatient();
+  trackMessage.textContent = "";
+  window.location.href = "./clinician-status.html";
 });

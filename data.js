@@ -1,257 +1,726 @@
-const RECOVERY_PLANS = {
-  shoulder: {
-    name: "Shoulder",
-    subtitle: "Rotator cuff and post-op shoulder recovery",
-    image:
-      '<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="shoulderGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1d7a63"/><stop offset="100%" stop-color="#ea9d52"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#shoulderGrad)"/><circle cx="60" cy="28" r="13" fill="#fff8ef"/><path d="M60 43c-10 0-18 8-18 18v11h10V61a8 8 0 0 1 16 0v11h10V61c0-10-8-18-18-18Z" fill="#fff8ef"/><path d="M42 62c-10 3-16 10-18 19" stroke="#f35f5f" stroke-width="6" stroke-linecap="round"/><path d="M78 62c10 3 16 10 18 19" stroke="#fff2df" stroke-width="6" stroke-linecap="round"/></svg>',
-    streak: 6,
-    completedSessions: 14,
-    totalSessions: 21,
-    todayLabel: "Day 7",
-    todayFocus: "Regain comfortable overhead motion and shoulder control.",
-    exercises: [
-      {
-        name: "Table slides",
-        dosage: "3 sets x 8 reps",
-        tip: "Slide only to a gentle stretch and pause for one breath."
-      },
-      {
-        name: "Scapular squeezes",
-        dosage: "2 sets x 10 reps",
-        tip: "Keep the neck relaxed while the shoulder blades move."
-      },
-      {
-        name: "Isometric external rotation",
-        dosage: "3 sets x 5 holds",
-        tip: "Press lightly into a towel without twisting."
-      }
+const CATEGORY_DEFINITIONS = [
+  {
+    id: 1,
+    key: "mobility-rom",
+    title: "Mobility / Range of Motion",
+    description: "Restore active motion through the wrist, forearm, fingers, and thumb.",
+    lockedNotice: "Only use exercises prescribed or approved by the treating clinician.",
+    items: [
+      "Wrist flexion/extension AROM",
+      "Wrist radial/ulnar deviation AROM",
+      "Forearm pronation/supination",
+      "Finger flexion/extension AROM",
+      "Thumb opposition",
+      "Thumb radial/palmar abduction",
+      "Finger blocking: DIP",
+      "Finger blocking: PIP",
+      "Composite fist",
+      "Tabletop/intrinsic plus position",
+      "Finger abduction/adduction"
     ]
   },
-  knee: {
-    name: "Knee",
-    subtitle: "ACL, meniscus, and total knee progression",
-    image:
-      '<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="kneeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1d7a63"/><stop offset="100%" stop-color="#ea9d52"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#kneeGrad)"/><circle cx="60" cy="22" r="12" fill="#fff8ef"/><rect x="51" y="35" width="18" height="28" rx="9" fill="#fff8ef"/><path d="M57 63 48 88" stroke="#fff8ef" stroke-width="8" stroke-linecap="round"/><path d="M64 63 76 87" stroke="#f35f5f" stroke-width="8" stroke-linecap="round"/><circle cx="67" cy="69" r="8" fill="#fff2df" stroke="#f35f5f" stroke-width="4"/></svg>',
-    streak: 9,
-    completedSessions: 18,
-    totalSessions: 24,
-    todayLabel: "Day 10",
-    todayFocus: "Improve knee extension, walking rhythm, and quad activation.",
-    exercises: [
-      {
-        name: "Heel prop extension hold",
-        dosage: "3 sets x 45 sec",
-        tip: "Let the leg relax fully so the knee can straighten."
-      },
-      {
-        name: "Quad sets",
-        dosage: "3 sets x 10 reps",
-        tip: "Tighten the thigh and hold each rep for 3 seconds."
-      },
-      {
-        name: "Mini sit-to-stands",
-        dosage: "3 sets x 8 reps",
-        tip: "Push evenly through both feet and stay controlled."
-      }
+  {
+    id: 2,
+    key: "tendon-gliding",
+    title: "Tendon Gliding",
+    description: "Improve tendon excursion and active hand movement patterns.",
+    lockedNotice: "Only use tendon gliding patterns prescribed or approved by the treating clinician.",
+    items: [
+      "Straight hand",
+      "Hook fist",
+      "Straight fist",
+      "Full fist",
+      "Tabletop fist",
+      "Isolated FDS glide",
+      "Isolated FDP glide",
+      "Thumb tendon glide",
+      "Differential tendon gliding sequence"
     ]
   },
-  hip: {
-    name: "Hip",
-    subtitle: "Hip replacement and hip repair support",
-    image:
-      '<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="hipGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1d7a63"/><stop offset="100%" stop-color="#ea9d52"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#hipGrad)"/><circle cx="60" cy="23" r="12" fill="#fff8ef"/><rect x="50" y="36" width="20" height="30" rx="10" fill="#fff8ef"/><path d="M50 64 41 89" stroke="#fff8ef" stroke-width="8" stroke-linecap="round"/><path d="M70 64 79 89" stroke="#fff8ef" stroke-width="8" stroke-linecap="round"/><circle cx="48" cy="67" r="7" fill="#fff2df" stroke="#f35f5f" stroke-width="4"/></svg>',
-    streak: 4,
-    completedSessions: 11,
-    totalSessions: 20,
-    todayLabel: "Day 5",
-    todayFocus: "Build confidence with transfers, glute activation, and walking.",
-    exercises: [
-      {
-        name: "Glute sets",
-        dosage: "3 sets x 10 reps",
-        tip: "Squeeze the glutes without arching the low back."
-      },
-      {
-        name: "Supported weight shifts",
-        dosage: "2 sets x 12 reps",
-        tip: "Use a counter and move side to side slowly."
-      },
-      {
-        name: "Sit-to-stand practice",
-        dosage: "3 sets x 6 reps",
-        tip: "Bring your nose forward, then stand tall."
-      }
+  {
+    id: 3,
+    key: "edema-pain",
+    title: "Edema / Pain Control",
+    description: "Track symptoms and reinforce swelling or irritability management tasks.",
+    lockedNotice: "Use only clinician-approved symptom management tasks and devices.",
+    items: [
+      "Hand elevation reminder",
+      "Active finger pumping",
+      "Gentle wrist/hand AROM for swelling",
+      "Compression glove/sleeve education",
+      "Retrograde massage reminder, only if prescribed",
+      "Ice/heat reminder, only if prescribed",
+      "Pain score before exercise",
+      "Pain score after exercise",
+      "Swelling/tightness check"
     ]
   },
-  ankle: {
-    name: "Ankle & Foot",
-    subtitle: "Ankle ORIF, Achilles, and foot recovery",
-    image:
-      '<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="ankleGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1d7a63"/><stop offset="100%" stop-color="#ea9d52"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#ankleGrad)"/><circle cx="60" cy="20" r="11" fill="#fff8ef"/><rect x="51" y="32" width="18" height="26" rx="9" fill="#fff8ef"/><path d="M56 58 50 86" stroke="#fff8ef" stroke-width="8" stroke-linecap="round"/><path d="M66 58 64 83" stroke="#fff8ef" stroke-width="8" stroke-linecap="round"/><path d="M64 83c9 0 15 2 22 7" stroke="#f35f5f" stroke-width="6" stroke-linecap="round"/></svg>',
-    streak: 7,
-    completedSessions: 13,
-    totalSessions: 18,
-    todayLabel: "Day 8",
-    todayFocus: "Reduce stiffness and improve calf strength and balance.",
-    exercises: [
-      {
-        name: "Ankle pumps",
-        dosage: "3 sets x 20 reps",
-        tip: "Move slowly through up-and-down motion."
-      },
-      {
-        name: "Heel raises",
-        dosage: "2 sets x 10 reps",
-        tip: "Use support and rise only as tolerated."
-      },
-      {
-        name: "Weight-bearing shifts",
-        dosage: "2 sets x 12 reps",
-        tip: "Spread pressure evenly through the foot."
-      }
+  {
+    id: 4,
+    key: "nerve-mobility",
+    title: "Nerve Mobility",
+    description: "Use prescribed neural mobility carefully and stop if symptoms worsen.",
+    lockedNotice: "Nerve glides stay locked unless the clinician enables them.",
+    items: [
+      "Median nerve glide",
+      "Ulnar nerve glide",
+      "Radial nerve glide",
+      "Cervical/shoulder positioning reminder if prescribed"
+    ]
+  },
+  {
+    id: 5,
+    key: "strengthening",
+    title: "Strengthening",
+    description: "Rebuild grip, pinch, wrist control, and functional load tolerance.",
+    lockedNotice: "Strengthening stays locked unless the clinician enables it.",
+    items: [
+      "Grip strengthening",
+      "Pinch strengthening",
+      "Wrist flexion strengthening",
+      "Wrist extension strengthening",
+      "Radial/ulnar deviation strengthening",
+      "Pronation/supination strengthening",
+      "Intrinsic hand strengthening",
+      "Rubber band finger extension",
+      "Putty squeeze",
+      "Putty pinch",
+      "Putty roll",
+      "Putty finger spread"
+    ]
+  },
+  {
+    id: 6,
+    key: "dexterity-fine-motor",
+    title: "Dexterity / Fine Motor Function",
+    description: "Practice fine motor control, coordination, and task-specific hand use.",
+    lockedNotice: "Choose tasks that match the current healing stage and functional goals.",
+    items: [
+      "Coin pickup",
+      "Pegboard task",
+      "Buttoning practice",
+      "Zipper practice",
+      "Handwriting tolerance",
+      "Typing tolerance",
+      "Object translation palm-to-fingertips",
+      "Small object manipulation",
+      "Card flipping",
+      "Key turning simulation"
+    ]
+  },
+  {
+    id: 7,
+    key: "splint-brace",
+    title: "Splint / Brace Adherence",
+    description: "Support wear schedule, skin checks, and fit concerns.",
+    lockedNotice: "Brace and splint instructions should come directly from the clinician.",
+    items: [
+      "Wear splint/brace as prescribed",
+      "Remove only when instructed",
+      "Skin check",
+      "Strap pressure check",
+      "Redness check",
+      "Numbness/tingling check",
+      "Clean splint/brace reminder",
+      "Document wear time",
+      "Report poor fit or new pressure areas"
+    ]
+  },
+  {
+    id: 8,
+    key: "postoperative-protection",
+    title: "Postoperative Protection / Precautions",
+    description: "Reinforce restrictions, wound monitoring, and protocol-based progression.",
+    lockedNotice: "Post-op precautions and progression stay locked unless clinician-enabled.",
+    items: [
+      "Weight-bearing restriction reminder",
+      "Lifting restriction reminder",
+      "No forceful gripping reminder",
+      "No passive stretching unless prescribed",
+      "Wound check reminder",
+      "Keep incision dry reminder, if applicable",
+      "Follow protocol phase reminder",
+      "Surgeon/therapist-defined progression checkpoint",
+      "Red flag symptom checklist"
+    ]
+  },
+  {
+    id: 9,
+    key: "functional-goals",
+    title: "Functional Goals",
+    description: "Translate the plan into real daily tasks and priorities.",
+    lockedNotice: "Functional tasks should reflect the clinician-approved phase and restrictions.",
+    items: [
+      "Dressing",
+      "Bathing/grooming",
+      "Cooking/meal preparation",
+      "Driving tolerance",
+      "Work task practice",
+      "School/computer use",
+      "Childcare task practice",
+      "Sports/hobby-specific task",
+      "Carrying light objects, if allowed",
+      "Opening containers, if allowed"
     ]
   }
-};
+];
+
+const LOCKED_CATEGORY_KEYS = new Set([
+  "nerve-mobility",
+  "strengthening",
+  "postoperative-protection"
+]);
+
+const GLOBAL_SAFETY_RULES = [
+  "This app tracks exercises and precautions prescribed or approved by the treating clinician. It does not provide medical advice.",
+  "Stop and contact the clinician for increasing pain, new numbness or tingling, color change, wound drainage, fever, sudden swelling, or loss of motion."
+];
 
 const STORAGE_KEYS = {
-  user: "orthoMotionUser",
-  selectedPlan: "orthoMotionSelectedPlan"
+  patients: "orthoMotionPatients",
+  activePatientId: "orthoMotionActivePatientId",
+  clinicianProfile: "orthoMotionClinicianProfile",
+  clinicianDraft: "orthoMotionClinicianDraft"
 };
 
-const API_BASE = "";
-
-function saveUser(user) {
-  localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
-  if (user?.selectedPlan) {
-    localStorage.setItem(STORAGE_KEYS.selectedPlan, user.selectedPlan);
-  }
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-function getUser() {
-  const raw = localStorage.getItem(STORAGE_KEYS.user);
+function makeLibraryItem(category, name) {
+  const lowerName = name.toLowerCase();
+  const requiresPrescription =
+    category.key === "nerve-mobility" ||
+    category.key === "strengthening" ||
+    lowerName.includes("only if prescribed") ||
+    lowerName.includes("if applicable") ||
+    lowerName.includes("if allowed") ||
+    lowerName.includes("progression checkpoint");
+
+  const contraindicationWarning =
+    category.key === "nerve-mobility"
+      ? "Stop if symptoms worsen, become sharp, or cause persistent numbness or tingling."
+      : category.key === "postoperative-protection"
+        ? "Do not progress beyond the prescribed phase or violate surgical precautions."
+        : category.key === "strengthening"
+          ? "Do not add resistance beyond the clinician-approved level."
+          : "Use only within the clinician-approved plan and healing phase.";
+
+  const painStopRule =
+    category.key === "edema-pain"
+      ? "Pause and notify the clinician if symptoms escalate instead of settling after the task."
+      : "Stop if pain meaningfully increases, sharp symptoms appear, or motion quality worsens.";
+
+  const defaultFrequency =
+    category.key === "splint-brace" || category.key === "postoperative-protection"
+      ? "Check daily"
+      : category.key === "functional-goals"
+        ? "1x daily practice"
+        : "2-3x daily";
+
+  const defaultDose =
+    category.key === "edema-pain"
+      ? "2-5 minutes"
+      : category.key === "functional-goals"
+        ? "5-10 minutes"
+        : "1-2 sets of 5-10 reps";
+
+  return {
+    id: `${category.key}-${slugify(name)}`,
+    category: category.title,
+    categoryKey: category.key,
+    name,
+    patient_friendly_description: `${name} is included here as a clinician-selected tracking item for hand recovery.`,
+    default_frequency: defaultFrequency,
+    default_sets_reps_duration: defaultDose,
+    daily_target_count: 1,
+    requires_prescription: requiresPrescription,
+    contraindication_warning: contraindicationWarning,
+    pain_stop_rule: painStopRule,
+    progression_notes: "Advance only when approved by the treating clinician.",
+    therapist_notes: "",
+    patient_checkoff: false,
+    adherence_timestamp: "",
+    pain_before: "",
+    pain_after: "",
+    swelling_response: "",
+    symptom_notes: ""
+  };
+}
+
+const EXERCISE_LIBRARY = CATEGORY_DEFINITIONS.flatMap((category) =>
+  category.items.map((name) => makeLibraryItem(category, name))
+);
+
+function defaultClinicianProfile() {
+  return {
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: ""
+  };
+}
+
+function defaultProgress() {
+  return {
+    completedSessions: 0,
+    streakCount: 0,
+    lastCompletedOn: "",
+    dailyLogs: {}
+  };
+}
+
+function defaultPatientRecord(patientId = "") {
+  const now = new Date().toISOString();
+  return {
+    patientId,
+    selectedCategories: [],
+    assignedItems: [],
+    clinicianNotes: "",
+    createdAt: now,
+    updatedAt: now,
+    progress: defaultProgress()
+  };
+}
+
+function defaultClinicianDraft() {
+  return {
+    patientId: "",
+    selectedCategories: [],
+    assignedItems: [],
+    clinicianNotes: ""
+  };
+}
+
+function readStorage(key, fallback) {
+  const raw = localStorage.getItem(key);
   if (!raw) {
-    return null;
+    return fallback();
   }
 
   try {
     return JSON.parse(raw);
   } catch {
+    return fallback();
+  }
+}
+
+function getClinicianProfile() {
+  return { ...defaultClinicianProfile(), ...readStorage(STORAGE_KEYS.clinicianProfile, defaultClinicianProfile) };
+}
+
+function saveClinicianProfile(profile) {
+  localStorage.setItem(STORAGE_KEYS.clinicianProfile, JSON.stringify({
+    ...defaultClinicianProfile(),
+    ...profile
+  }));
+}
+
+function getClinicianDraft() {
+  return { ...defaultClinicianDraft(), ...readStorage(STORAGE_KEYS.clinicianDraft, defaultClinicianDraft) };
+}
+
+function saveClinicianDraft(draft) {
+  localStorage.setItem(STORAGE_KEYS.clinicianDraft, JSON.stringify({
+    ...defaultClinicianDraft(),
+    ...draft
+  }));
+}
+
+function clearClinicianDraft() {
+  localStorage.removeItem(STORAGE_KEYS.clinicianDraft);
+}
+
+function getPatientsStore() {
+  return readStorage(STORAGE_KEYS.patients, () => ({}));
+}
+
+function savePatientsStore(store) {
+  localStorage.setItem(STORAGE_KEYS.patients, JSON.stringify(store));
+}
+
+function getAllPatientRecords() {
+  return Object.values(getPatientsStore()).sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+}
+
+function getPatientRecord(patientId) {
+  if (!patientId) {
     return null;
   }
-}
 
-function saveSelectedPlan(planId) {
-  localStorage.setItem(STORAGE_KEYS.selectedPlan, planId);
-}
-
-function clearUser() {
-  localStorage.removeItem(STORAGE_KEYS.user);
-  localStorage.removeItem(STORAGE_KEYS.selectedPlan);
-}
-
-function getSelectedPlan() {
-  return localStorage.getItem(STORAGE_KEYS.selectedPlan) || "knee";
-}
-
-function markTodayComplete(isComplete) {
-  const user = getUser();
-  if (!user) {
-    return;
+  const store = getPatientsStore();
+  const record = store[patientId];
+  if (!record) {
+    return null;
   }
 
-  saveUser({
-    ...user,
-    completedToday: isComplete
-  });
-}
-
-function getCurrentPlan() {
-  return RECOVERY_PLANS[getSelectedPlan()] || RECOVERY_PLANS.knee;
-}
-
-function getUserName() {
-  return getUser()?.name || "";
-}
-
-function goHome() {
-  window.location.href = "./index.html";
-}
-
-function goBack(fallback = "./index.html") {
-  if (window.history.length > 1) {
-    window.history.back();
-    return;
-  }
-
-  window.location.href = fallback;
-}
-
-function getUserPlan() {
-  return getUser()?.selectedPlan || getSelectedPlan();
-}
-
-function getCurrentUserPlan() {
-  const basePlan = RECOVERY_PLANS[getUserPlan()] || RECOVERY_PLANS.knee;
   return {
-    ...basePlan,
-    todayLabel: `Day ${getCompletedSessions() + 1}`
+    ...defaultPatientRecord(patientId),
+    ...record,
+    progress: {
+      ...defaultProgress(),
+      ...(record.progress || {})
+    }
   };
 }
 
-function getCompletedSessions() {
-  return getUser()?.completedSessions || 0;
+function savePatientRecord(record) {
+  const store = getPatientsStore();
+  store[record.patientId] = record;
+  savePatientsStore(store);
 }
 
-function getStreakCount() {
-  return getUser()?.streakCount || 0;
+function setActivePatientId(patientId) {
+  if (patientId) {
+    localStorage.setItem(STORAGE_KEYS.activePatientId, patientId);
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.activePatientId);
+  }
 }
 
-function hasCompletedToday() {
-  return Boolean(getUser()?.completedToday);
+function getActivePatientId() {
+  return localStorage.getItem(STORAGE_KEYS.activePatientId) || "";
 }
 
-async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    },
-    ...options
-  });
+function clearActivePatientId() {
+  localStorage.removeItem(STORAGE_KEYS.activePatientId);
+}
 
-  const data = await response.json().catch(() => ({}));
+function getActivePatientRecord() {
+  return getPatientRecord(getActivePatientId());
+}
 
-  if (!response.ok) {
-    throw new Error(data.error || "Something went wrong.");
+function syncDraftFromActivePatient() {
+  const activeRecord = getActivePatientRecord();
+  if (activeRecord) {
+    saveClinicianDraft({
+      patientId: activeRecord.patientId,
+      selectedCategories: activeRecord.selectedCategories,
+      assignedItems: activeRecord.assignedItems,
+      clinicianNotes: activeRecord.clinicianNotes
+    });
+    return;
   }
 
-  return data;
+  clearClinicianDraft();
 }
 
-async function signUpUser(payload) {
-  return apiRequest("/api/signup", {
-    method: "POST",
-    body: JSON.stringify(payload)
+function normalizePatientId(value) {
+  return value.trim().toUpperCase();
+}
+
+function generatePatientId() {
+  const store = getPatientsStore();
+  let patientId = "";
+
+  do {
+    patientId = `HND-${Math.random().toString(36).slice(2, 6).toUpperCase()}${Math.random()
+      .toString(36)
+      .slice(2, 4)
+      .toUpperCase()}`;
+  } while (store[patientId]);
+
+  return patientId;
+}
+
+function activatePatientById(patientId) {
+  const normalizedId = normalizePatientId(patientId);
+  const record = getPatientRecord(normalizedId);
+
+  if (!record) {
+    return null;
+  }
+
+  setActivePatientId(normalizedId);
+  return record;
+}
+
+function getCategoryById(id) {
+  return CATEGORY_DEFINITIONS.find((category) => category.id === id);
+}
+
+function getItemsForCategory(categoryId) {
+  const category = getCategoryById(categoryId);
+  if (!category) {
+    return [];
+  }
+
+  return EXERCISE_LIBRARY.filter((item) => item.categoryKey === category.key);
+}
+
+function getAssignedCategories(patientId = getActivePatientId()) {
+  const record = getPatientRecord(patientId);
+  if (!record) {
+    return [];
+  }
+
+  const selectedIds = new Set(record.selectedCategories);
+  return CATEGORY_DEFINITIONS.filter((category) => selectedIds.has(category.id));
+}
+
+function getAssignedItems(patientId = getActivePatientId()) {
+  const record = getPatientRecord(patientId);
+  return record ? record.assignedItems : [];
+}
+
+function getAssignedItemsByCategory(patientId = getActivePatientId()) {
+  const assignedByCategory = new Map();
+
+  getAssignedItems(patientId).forEach((item) => {
+    const existing = assignedByCategory.get(item.categoryKey) || [];
+    existing.push(item);
+    assignedByCategory.set(item.categoryKey, existing);
+  });
+
+  return CATEGORY_DEFINITIONS.filter((category) => assignedByCategory.has(category.key)).map((category) => ({
+    ...category,
+    assignedItems: assignedByCategory.get(category.key)
+  }));
+}
+
+function hasAssignedPlan(patientId = getActivePatientId()) {
+  return getAssignedItems(patientId).length > 0;
+}
+
+function saveClinicianPlan({ patientId, selectedCategories, assignedItems, clinicianNotes }) {
+  const selectedCategorySet = new Set(selectedCategories);
+  const normalizedItems = assignedItems.map((item) => ({
+    ...item,
+    daily_target_count: Math.max(1, Number(item.daily_target_count) || 1),
+    patient_checkoff: false,
+    adherence_timestamp: "",
+    pain_before: item.pain_before || "",
+    pain_after: item.pain_after || "",
+    swelling_response: item.swelling_response || "",
+    symptom_notes: item.symptom_notes || ""
+  }));
+
+  const recordId = patientId || generatePatientId();
+  const existingRecord = getPatientRecord(recordId);
+  const now = new Date().toISOString();
+
+  const nextRecord = {
+    ...(existingRecord || defaultPatientRecord(recordId)),
+    patientId: recordId,
+    selectedCategories: [...selectedCategorySet].sort((a, b) => a - b),
+    assignedItems: normalizedItems,
+    clinicianNotes: clinicianNotes || "",
+    updatedAt: now,
+    createdAt: existingRecord?.createdAt || now,
+    progress: existingRecord?.progress || defaultProgress()
+  };
+
+  savePatientRecord(nextRecord);
+  setActivePatientId(recordId);
+  saveClinicianDraft({
+    patientId: recordId,
+    selectedCategories: nextRecord.selectedCategories,
+    assignedItems: nextRecord.assignedItems,
+    clinicianNotes: nextRecord.clinicianNotes
+  });
+  return nextRecord;
+}
+
+function getTodayIsoDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = `${now.getMonth() + 1}`.padStart(2, "0");
+  const day = `${now.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getYesterdayIsoDate() {
+  const now = new Date();
+  now.setDate(now.getDate() - 1);
+  const year = now.getFullYear();
+  const month = `${now.getMonth() + 1}`.padStart(2, "0");
+  const day = `${now.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getPatientProgress(patientId = getActivePatientId()) {
+  return getPatientRecord(patientId)?.progress || defaultProgress();
+}
+
+function getCompletedSessions(patientId = getActivePatientId()) {
+  return getPatientProgress(patientId).completedSessions || 0;
+}
+
+function getStreakCount(patientId = getActivePatientId()) {
+  return getPatientProgress(patientId).streakCount || 0;
+}
+
+function hasCompletedToday(patientId = getActivePatientId()) {
+  return getPatientProgress(patientId).lastCompletedOn === getTodayIsoDate();
+}
+
+function getCurrentDayLabel(patientId = getActivePatientId()) {
+  return `Day ${getCompletedSessions(patientId) + 1}`;
+}
+
+function getDailyItemLog(patientId = getActivePatientId(), date = getTodayIsoDate()) {
+  const progress = getPatientProgress(patientId);
+  return progress.dailyLogs[date] || {};
+}
+
+function updateDailyItemLog(itemId, patch, patientId = getActivePatientId(), date = getTodayIsoDate()) {
+  const record = getPatientRecord(patientId);
+  if (!record) {
+    return;
+  }
+
+  const currentDay = record.progress.dailyLogs[date] || {};
+  const currentItem = currentDay[itemId] || {};
+
+  record.progress.dailyLogs[date] = {
+    ...currentDay,
+    [itemId]: {
+      ...currentItem,
+      ...patch
+    }
+  };
+
+  record.updatedAt = new Date().toISOString();
+  savePatientRecord(record);
+}
+
+function completeTodaySession(patientId = getActivePatientId()) {
+  const record = getPatientRecord(patientId);
+  if (!record) {
+    return defaultProgress();
+  }
+
+  const today = getTodayIsoDate();
+
+  if (record.progress.lastCompletedOn === today) {
+    return record.progress;
+  }
+
+  const nextStreak =
+    record.progress.lastCompletedOn === getYesterdayIsoDate() ? (record.progress.streakCount || 0) + 1 : 1;
+
+  record.progress = {
+    ...record.progress,
+    completedSessions: (record.progress.completedSessions || 0) + 1,
+    streakCount: nextStreak,
+    lastCompletedOn: today,
+    dailyLogs: {
+      ...record.progress.dailyLogs,
+      [today]: {
+        ...(record.progress.dailyLogs[today] || {}),
+        sessionCompletedAt: new Date().toISOString()
+      }
+    }
+  };
+
+  record.updatedAt = new Date().toISOString();
+  savePatientRecord(record);
+  return record.progress;
+}
+
+function getPatientDashboard(patientId = getActivePatientId()) {
+  const record = getPatientRecord(patientId);
+  return {
+    patientId,
+    title: "Assigned hand recovery plan",
+    dayLabel: getCurrentDayLabel(patientId),
+    categories: getAssignedCategories(patientId),
+    groupedItems: getAssignedItemsByCategory(patientId),
+    clinicianNotes: record?.clinicianNotes || ""
+  };
+}
+
+function getHomeScreenState() {
+  const activePatientId = getActivePatientId();
+  const activePatient = getPatientRecord(activePatientId);
+
+  if (!activePatient) {
+    return {
+      statusLabel: "No patient loaded",
+      dayLabel: "Waiting for patient ID",
+      patientButtonLabel: "Enter patient ID",
+      patientButtonHref: "./patient-access.html",
+      patientButtonDisabled: false
+    };
+  }
+
+  if (hasCompletedToday(activePatientId)) {
+    return {
+      statusLabel: `${activePatient.patientId} is all done for the day`,
+      dayLabel: getCurrentDayLabel(activePatientId),
+      patientButtonLabel: "Enter patient ID",
+      patientButtonHref: "./patient-access.html",
+      patientButtonDisabled: false
+    };
+  }
+
+  return {
+    statusLabel: `${activePatient.patientId}: ${getCompletedSessions(activePatientId)} sessions completed`,
+    dayLabel: getCurrentDayLabel(activePatientId),
+    patientButtonLabel: "Enter patient ID",
+    patientButtonHref: "./patient-access.html",
+    patientButtonDisabled: false
+  };
+}
+
+function getRecentDates(days = 7) {
+  const dates = [];
+  const now = new Date();
+
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - offset);
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, "0");
+    const day = `${date.getDate()}`.padStart(2, "0");
+    dates.push(`${year}-${month}-${day}`);
+  }
+
+  return dates;
+}
+
+function summarizeDayMetrics(dayLog, totalItems) {
+  const entries = Object.entries(dayLog).filter(([key]) => key !== "sessionCompletedAt");
+  const checkedCount = entries.filter(([, value]) => value.patient_checkoff).length;
+  const painBeforeValues = entries.map(([, value]) => Number(value.pain_before)).filter((value) => !Number.isNaN(value));
+  const painAfterValues = entries.map(([, value]) => Number(value.pain_after)).filter((value) => !Number.isNaN(value));
+
+  return {
+    completionPercent: totalItems ? Math.round((checkedCount / totalItems) * 100) : 0,
+    avgPainBefore: painBeforeValues.length
+      ? (painBeforeValues.reduce((sum, value) => sum + value, 0) / painBeforeValues.length).toFixed(1)
+      : "",
+    avgPainAfter: painAfterValues.length
+      ? (painAfterValues.reduce((sum, value) => sum + value, 0) / painAfterValues.length).toFixed(1)
+      : "",
+    checkedCount
+  };
+}
+
+function getPatientTrendData(patientId = getActivePatientId()) {
+  const record = getPatientRecord(patientId);
+  if (!record) {
+    return [];
+  }
+
+  const totalItems = record.assignedItems.length;
+  const dates = getRecentDates(7);
+
+  return dates.map((date) => {
+    const dayLog = record.progress.dailyLogs[date] || {};
+    return {
+      date,
+      ...summarizeDayMetrics(dayLog, totalItems)
+    };
   });
 }
 
-async function signInUser(payload) {
-  return apiRequest("/api/login", {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
-}
-
-async function savePlanSelection(userId, planId) {
-  return apiRequest("/api/select-plan", {
-    method: "POST",
-    body: JSON.stringify({ userId, planId })
-  });
-}
-
-async function saveCompletedSession(userId) {
-  return apiRequest("/api/complete-session", {
-    method: "POST",
-    body: JSON.stringify({ userId })
-  });
+function resetAllData() {
+  localStorage.removeItem(STORAGE_KEYS.patients);
+  localStorage.removeItem(STORAGE_KEYS.activePatientId);
+  localStorage.removeItem(STORAGE_KEYS.clinicianProfile);
+  localStorage.removeItem(STORAGE_KEYS.clinicianDraft);
 }
