@@ -71,17 +71,18 @@ function renderCategoryEditors() {
       const fieldsPanel = card.querySelector(".assigned-item-fields");
       const saved = assignedOverrides.get(item.id) || item;
       const isChecked = assignedItemIds.has(item.id);
+      const targetCount = Math.max(1, Number(saved.daily_target_count) || 1);
 
       card.querySelector(".assigned-item-title").textContent = item.name;
       card.querySelector(".assigned-item-meta").textContent = item.requires_prescription
         ? "Requires clinician prescription or approval"
-        : "Standard tracked item";
+        : `Standard tracked item • patient must complete ${targetCount} each day`;
 
       checkbox.checked = isChecked;
       descriptionInput.value = saved.patient_friendly_description;
       frequencyInput.value = saved.default_frequency;
       doseInput.value = saved.default_sets_reps_duration;
-      targetInput.value = saved.daily_target_count || 1;
+      targetInput.value = targetCount;
       warningInput.value = saved.contraindication_warning;
       painStopInput.value = saved.pain_stop_rule;
       progressionInput.value = saved.progression_notes;

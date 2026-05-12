@@ -57,7 +57,7 @@ async function renderToday() {
 
     item.querySelector(".exercise-title").textContent = assignedItem.name;
     item.querySelector(".exercise-dose").textContent = `${assignedItem.default_frequency} • ${assignedItem.default_sets_reps_duration}`;
-    progressText.textContent = `${completedCount} / ${targetCount} completions done today`;
+    progressText.textContent = `${completedCount} / ${targetCount} required completions done today`;
     item.querySelector(".exercise-tip").textContent =
       `${assignedItem.patient_friendly_description} ${assignedItem.therapist_notes}`.trim();
     item.querySelector(".exercise-warning").textContent =
@@ -99,7 +99,7 @@ async function renderToday() {
             patient_checkoff: completedCount >= targetCount,
             adherence_timestamp: completedCount >= targetCount ? new Date().toISOString() : ""
           };
-          progressText.textContent = `${completedCount} / ${targetCount} completions done today`;
+          progressText.textContent = `${completedCount} / ${targetCount} required completions done today`;
           updateLocalEntry(patch);
           await apiUpdatePatientItemLog({
             patientId: activeRecord.patientId,

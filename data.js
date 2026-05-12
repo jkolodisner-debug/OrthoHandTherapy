@@ -219,7 +219,7 @@ function makeLibraryItem(category, name) {
       ? "Check daily"
       : category.key === "functional-goals"
         ? "1x daily practice"
-        : "2-3x daily";
+        : "2x daily";
 
   const defaultDose =
     category.key === "edema-pain"
