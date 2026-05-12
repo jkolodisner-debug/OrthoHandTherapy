@@ -9,6 +9,8 @@ const accountTitle = document.querySelector("#account-title");
 const accountSupportCopy = document.querySelector("#account-support-copy");
 const accountSubmitButton = document.querySelector("#account-submit-button");
 const passwordToggleButton = document.querySelector("#password-toggle-button");
+const accountTopLink = document.querySelector("#account-top-link");
+const accountSecondaryLink = document.querySelector("#account-secondary-link");
 
 const params = new URLSearchParams(window.location.search);
 const isDetailsMode = params.get("mode") === "details";
@@ -20,6 +22,10 @@ if (isDetailsMode) {
   accountSupportCopy.textContent =
     "Review the saved clinician name and email for this session. Password is never shown here. Profile editing and password reset can come next.";
   accountSubmitButton.hidden = true;
+  accountTopLink.href = "./select.html";
+  accountTopLink.textContent = "Clinician portal";
+  accountSecondaryLink.href = "./select.html";
+  accountSecondaryLink.textContent = "Clinician portal";
 
   if (clinician) {
     firstNameInput.value = clinician.firstName || "";
@@ -34,6 +40,11 @@ if (isDetailsMode) {
   passwordInput.placeholder = "Password hidden";
   passwordInput.disabled = true;
   passwordToggleButton.hidden = true;
+} else {
+  accountTopLink.href = "./clinician-auth.html";
+  accountTopLink.textContent = "Back";
+  accountSecondaryLink.href = "./clinician-auth.html";
+  accountSecondaryLink.textContent = "Clinician access";
 }
 
 passwordToggleButton.addEventListener("click", () => {
