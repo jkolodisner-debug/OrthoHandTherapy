@@ -316,12 +316,19 @@ h2 {
   margin-top: 24px;
 }
 
+.role-choice-card {
+  justify-self: center;
+  width: min(100%, 520px);
+  text-align: center;
+}
+
 .role-card {
   padding: 22px;
   border: 1px solid var(--line);
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(12, 35, 75, 0.02), rgba(171, 4, 32, 0.02)), var(--bg-strong);
   box-shadow: 0 12px 28px rgba(12, 35, 75, 0.05);
+  text-align: center;
 }
 
 .role-card h3 {
