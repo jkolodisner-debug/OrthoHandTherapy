@@ -5,6 +5,7 @@ const emailInput = document.querySelector("#email-input");
 const passwordInput = document.querySelector("#password-input");
 const inviteCodeField = document.querySelector("#invite-code-field");
 const inviteCodeInput = document.querySelector("#invite-code-input");
+const inviteCodeToggleButton = document.querySelector("#invite-code-toggle-button");
 const accountMessage = document.querySelector("#account-message");
 const accountEyebrow = document.querySelector("#account-eyebrow");
 const accountTitle = document.querySelector("#account-title");
@@ -57,6 +58,12 @@ passwordToggleButton.addEventListener("click", () => {
   const shouldShow = passwordInput.type === "password";
   passwordInput.type = shouldShow ? "text" : "password";
   passwordToggleButton.textContent = shouldShow ? "Hide" : "Show";
+});
+
+inviteCodeToggleButton.addEventListener("click", () => {
+  const shouldShow = inviteCodeInput.type === "password";
+  inviteCodeInput.type = shouldShow ? "text" : "password";
+  inviteCodeToggleButton.textContent = shouldShow ? "Hide" : "Show";
 });
 
 newPasswordToggle.addEventListener("click", () => {
