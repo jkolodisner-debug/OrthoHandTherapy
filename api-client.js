@@ -6,6 +6,11 @@ const SESSION_STORAGE_KEYS = {
   activePatientRecord: "orthoMotionActivePatientRecord"
 };
 
+const PREFERENCE_STORAGE_KEYS = {
+  rememberedClinicianEmail: "orthoMotionRememberedClinicianEmail",
+  rememberedPatientId: "orthoMotionRememberedPatientId"
+};
+
 function readStorageValue(storage, key, fallback) {
   const raw = storage.getItem(key);
   if (!raw) {
@@ -163,6 +168,30 @@ function getActivePatientRecord() {
 function clearActivePatientRecord() {
   localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
+}
+
+function saveRememberedClinicianEmail(email) {
+  if (email) {
+    localStorage.setItem(PREFERENCE_STORAGE_KEYS.rememberedClinicianEmail, email);
+  } else {
+    localStorage.removeItem(PREFERENCE_STORAGE_KEYS.rememberedClinicianEmail);
+  }
+}
+
+function getRememberedClinicianEmail() {
+  return localStorage.getItem(PREFERENCE_STORAGE_KEYS.rememberedClinicianEmail) || "";
+}
+
+function saveRememberedPatientId(patientId) {
+  if (patientId) {
+    localStorage.setItem(PREFERENCE_STORAGE_KEYS.rememberedPatientId, patientId);
+  } else {
+    localStorage.removeItem(PREFERENCE_STORAGE_KEYS.rememberedPatientId);
+  }
+}
+
+function getRememberedPatientId() {
+  return localStorage.getItem(PREFERENCE_STORAGE_KEYS.rememberedPatientId) || "";
 }
 
 async function apiCreateClinicianAccount({ firstName, lastName, email, password }) {
