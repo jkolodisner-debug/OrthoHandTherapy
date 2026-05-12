@@ -17,8 +17,8 @@ async function renderPatients() {
     const editButton = row.querySelector(".patient-edit-button");
 
     row.querySelector(".patient-row-id").textContent = patient.patientId;
-    stats[0].textContent = `${patient.progress.completedSessions || 0} sessions`;
-    stats[1].textContent = `${patient.progress.streakCount || 0} day streak`;
+    stats[0].textContent = `${patient.completedSessions || 0} sessions`;
+    stats[1].textContent = `${patient.streakCount || 0} day streak`;
 
     statusButton.addEventListener("click", () => {
       setActivePatientId(patient.patientId);
