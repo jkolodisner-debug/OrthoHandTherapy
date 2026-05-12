@@ -574,10 +574,10 @@ h2 {
   padding: 10px 16px;
   border-radius: 999px;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--ua-blue);
-  border: 1px solid var(--line);
-  box-shadow: 0 10px 20px rgba(12, 35, 75, 0.08);
+  background: linear-gradient(135deg, var(--ua-blue), #17376a);
+  color: #f8fbff;
+  border: 1px solid rgba(12, 35, 75, 0.2);
+  box-shadow: 0 12px 24px rgba(12, 35, 75, 0.2);
   font-weight: 700;
 }
 
