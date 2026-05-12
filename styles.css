@@ -594,6 +594,14 @@ h2 {
   transform: translateY(-2px);
 }
 
+.primary-button:hover {
+  background: linear-gradient(135deg, #c61f3e, #d83a58);
+}
+
+.nav-link:hover {
+  background: linear-gradient(135deg, var(--ua-blue-soft), #44639a);
+}
+
 .is-disabled {
   opacity: 0.5;
   pointer-events: none;
