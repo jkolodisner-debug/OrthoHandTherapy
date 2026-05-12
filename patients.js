@@ -2,11 +2,14 @@ const patientList = document.querySelector("#patient-list");
 const patientsMessage = document.querySelector("#patients-message");
 const patientRowTemplate = document.querySelector("#patient-row-template");
 
-const patients = getAllPatientRecords();
+async function renderPatients() {
+  const patients = await apiFetchClinicianPatients();
 
-if (!patients.length) {
-  patientsMessage.textContent = "No patient IDs have been created on this device yet.";
-} else {
+  if (!patients.length) {
+    patientsMessage.textContent = "No patient IDs have been created for this clinician yet.";
+    return;
+  }
+
   patients.forEach((patient) => {
     const row = patientRowTemplate.content.firstElementChild.cloneNode(true);
     const stats = row.querySelectorAll(".patient-row-stat");
@@ -19,15 +22,21 @@ if (!patients.length) {
 
     statusButton.addEventListener("click", () => {
       setActivePatientId(patient.patientId);
+      clearActivePatientRecord();
       window.location.href = "./clinician-status.html";
     });
 
     editButton.addEventListener("click", () => {
       setActivePatientId(patient.patientId);
-      syncDraftFromActivePatient();
-      window.location.href = "./select.html";
+      clearActivePatientRecord();
+      clearClinicianDraft();
+      window.location.href = "./category-select.html";
     });
 
     patientList.appendChild(row);
   });
 }
+
+renderPatients().catch((error) => {
+  patientsMessage.textContent = error.message;
+});

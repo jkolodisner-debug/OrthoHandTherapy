@@ -5,19 +5,19 @@ const trackMessage = document.querySelector("#track-message");
 
 newPatientLink.addEventListener("click", () => {
   clearActivePatientId();
+  clearActivePatientRecord();
   clearClinicianDraft();
 });
 
-trackPatientForm.addEventListener("submit", (event) => {
+trackPatientForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const record = activatePatientById(trackPatientId.value);
 
-  if (!record) {
-    trackMessage.textContent = "That patient ID was not found on this device.";
-    return;
+  try {
+    await apiFetchPatientRecord(trackPatientId.value);
+    syncDraftFromActivePatient();
+    trackMessage.textContent = "";
+    window.location.href = "./clinician-status.html";
+  } catch (error) {
+    trackMessage.textContent = error.message;
   }
-
-  syncDraftFromActivePatient();
-  trackMessage.textContent = "";
-  window.location.href = "./clinician-status.html";
 });

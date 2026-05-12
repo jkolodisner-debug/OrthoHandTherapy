@@ -9,15 +9,11 @@ const patientIdOverlay = document.querySelector("#patient-id-overlay");
 const createdPatientId = document.querySelector("#created-patient-id");
 const returnPortalButton = document.querySelector("#return-portal-button");
 
-const activeRecord = getActivePatientRecord();
+let activeRecord = getActivePatientRecord();
 const draft = getClinicianDraft();
 const selectedCategoryIds = new Set(draft.selectedCategories || activeRecord?.selectedCategories || []);
 const assignedItemIds = new Set((draft.assignedItems || activeRecord?.assignedItems || []).map((item) => item.id));
 const assignedOverrides = new Map((draft.assignedItems || activeRecord?.assignedItems || []).map((item) => [item.id, item]));
-
-if (selectedCategoryIds.size === 0) {
-  window.location.href = "./select.html";
-}
 
 activePatientLabel.textContent = activeRecord?.patientId || "New patient plan";
 clinicianPlanNotes.value = draft.clinicianNotes || activeRecord?.clinicianNotes || "";
@@ -151,7 +147,7 @@ function collectAssignedItems() {
   return items;
 }
 
-savePlanButton.addEventListener("click", () => {
+savePlanButton.addEventListener("click", async () => {
   const assignedItems = collectAssignedItems();
 
   if (assignedItems.length === 0) {
@@ -159,16 +155,30 @@ savePlanButton.addEventListener("click", () => {
     return;
   }
 
-  const savedRecord = saveClinicianPlan({
-    patientId: activeRecord?.patientId || draft.patientId || "",
-    selectedCategories: [...selectedCategoryIds],
-    assignedItems,
-    clinicianNotes: clinicianPlanNotes.value.trim()
-  });
+  builderMessage.textContent = "Saving patient plan...";
 
-  builderMessage.textContent = "Assigned plan saved on this device.";
-  createdPatientId.textContent = savedRecord.patientId;
-  patientIdOverlay.classList.remove("hidden");
+  try {
+    const savedRecord = await apiSavePatientPlan({
+      patientId: activeRecord?.patientId || draft.patientId || "",
+      selectedCategories: [...selectedCategoryIds],
+      assignedItems,
+      clinicianNotes: clinicianPlanNotes.value.trim()
+    });
+
+    saveClinicianDraft({
+      patientId: savedRecord.patientId,
+      selectedCategories: savedRecord.selectedCategories,
+      assignedItems: savedRecord.assignedItems,
+      clinicianNotes: savedRecord.clinicianNotes
+    });
+
+    builderMessage.textContent = "Assigned plan saved.";
+    createdPatientId.textContent = savedRecord.patientId;
+    activeRecord = savedRecord;
+    patientIdOverlay.classList.remove("hidden");
+  } catch (error) {
+    builderMessage.textContent = error.message;
+  }
 });
 
 returnPortalButton.addEventListener("click", () => {
@@ -176,5 +186,34 @@ returnPortalButton.addEventListener("click", () => {
   window.location.href = "./select.html";
 });
 
-renderCategoryEditors();
-updateSaveState();
+async function initializePlanBuilder() {
+  if (!activeRecord && getActivePatientId()) {
+    activeRecord = await refreshActivePatientRecord();
+    activePatientLabel.textContent = activeRecord?.patientId || "New patient plan";
+    clinicianPlanNotes.value = draft.clinicianNotes || activeRecord?.clinicianNotes || "";
+    if (selectedCategoryIds.size === 0) {
+      (activeRecord?.selectedCategories || []).forEach((id) => selectedCategoryIds.add(id));
+    }
+    (activeRecord?.assignedItems || []).forEach((item) => {
+      assignedItemIds.add(item.id);
+      assignedOverrides.set(item.id, item);
+    });
+  }
+
+  if (selectedCategoryIds.size === 0) {
+    window.location.href = "./select.html";
+    return;
+  }
+
+  renderCategoryEditors();
+  updateSaveState();
+}
+
+initializePlanBuilder().catch(() => {
+  if (selectedCategoryIds.size === 0) {
+    window.location.href = "./select.html";
+    return;
+  }
+  renderCategoryEditors();
+  updateSaveState();
+});

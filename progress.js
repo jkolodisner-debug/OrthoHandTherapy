@@ -11,17 +11,32 @@ const patientSafetyList = document.querySelector("#patient-safety-list");
 const patientIntro = document.querySelector("#patient-intro");
 const patientCode = document.querySelector("#patient-code");
 
-if (!hasAssignedPlan()) {
-  patientIntro.textContent = "Enter a patient ID first so the assigned plan can load for this patient.";
-  continueButton.textContent = "Enter patient ID";
-  continueButton.href = "./patient-access.html";
-} else {
-  const dashboard = getPatientDashboard();
-  const completed = getCompletedSessions();
+GLOBAL_SAFETY_RULES.forEach((rule) => {
+  const item = document.createElement("li");
+  item.textContent = rule;
+  patientSafetyList.appendChild(item);
+});
+
+async function renderProgress() {
+  let activeRecord = getActivePatientRecord();
+  if (!activeRecord && getActivePatientId()) {
+    activeRecord = await refreshActivePatientRecord();
+  }
+
+  if (!hasAssignedPlan(activeRecord)) {
+    patientIntro.textContent = "Enter a patient ID first so the assigned plan can load for this patient.";
+    continueButton.textContent = "Enter patient ID";
+    continueButton.href = "./patient-access.html";
+    patientCode.textContent = "Not loaded";
+    return;
+  }
+
+  const dashboard = getPatientDashboard(activeRecord);
+  const completed = getCompletedSessions(activeRecord);
   const percent = Math.min(100, Math.round((completed / 30) * 100));
 
   patientCode.textContent = dashboard.patientId;
-  streakCount.textContent = `${getStreakCount()} days`;
+  streakCount.textContent = `${getStreakCount(activeRecord)} days`;
   completedCount.textContent = `${completed}`;
   dayLabel.textContent = dashboard.dayLabel;
   progressFill.style.width = `${percent}%`;
@@ -43,14 +58,11 @@ if (!hasAssignedPlan()) {
   } else {
     clinicianNotesPanel.classList.add("hidden");
   }
-} 
-
-if (!getActivePatientId()) {
-  patientCode.textContent = "Not loaded";
 }
 
-GLOBAL_SAFETY_RULES.forEach((rule) => {
-  const item = document.createElement("li");
-  item.textContent = rule;
-  patientSafetyList.appendChild(item);
+renderProgress().catch(() => {
+  patientIntro.textContent = "Enter a patient ID first so the assigned plan can load for this patient.";
+  continueButton.textContent = "Enter patient ID";
+  continueButton.href = "./patient-access.html";
+  patientCode.textContent = "Not loaded";
 });

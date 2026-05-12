@@ -5,7 +5,7 @@ const activePatientLabel = document.querySelector("#active-patient-label");
 const builderMessage = document.querySelector("#builder-message");
 const continueButton = document.querySelector("#continue-button");
 
-const activeRecord = getActivePatientRecord();
+let activeRecord = getActivePatientRecord();
 const draft = getClinicianDraft();
 const selectedCategoryIds = new Set(draft.selectedCategories || activeRecord?.selectedCategories || []);
 
@@ -67,5 +67,21 @@ continueButton.addEventListener("click", (event) => {
   persistDraft();
 });
 
-renderCategoryOptions();
-updateContinueState();
+async function initializeCategoryStep() {
+  if (!activeRecord && getActivePatientId()) {
+    activeRecord = await refreshActivePatientRecord();
+    activePatientLabel.textContent = activeRecord?.patientId || "New patient plan";
+  }
+
+  if (selectedCategoryIds.size === 0 && activeRecord?.selectedCategories?.length) {
+    activeRecord.selectedCategories.forEach((id) => selectedCategoryIds.add(id));
+  }
+
+  renderCategoryOptions();
+  updateContinueState();
+}
+
+initializeCategoryStep().catch(() => {
+  renderCategoryOptions();
+  updateContinueState();
+});

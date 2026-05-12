@@ -7,8 +7,6 @@ const painChart = document.querySelector("#pain-chart");
 const statusPlanList = document.querySelector("#status-plan-list");
 const editPlanButton = document.querySelector("#edit-plan-button");
 
-const activeRecord = getActivePatientRecord();
-
 function renderChartRow(container, label, value, max, toneClass, suffix = "") {
   const row = document.createElement("div");
   row.className = "chart-row";
@@ -20,16 +18,25 @@ function renderChartRow(container, label, value, max, toneClass, suffix = "") {
   container.appendChild(row);
 }
 
-if (!activeRecord) {
-  statusSubtitle.textContent = "No patient is loaded right now. Go back to the clinician portal and enter a patient ID first.";
-  editPlanButton.textContent = "Open clinician portal";
-} else {
-  const trendData = getPatientTrendData(activeRecord.patientId);
-  const groupedItems = getAssignedItemsByCategory(activeRecord.patientId);
+async function renderStatus() {
+  let activeRecord = getActivePatientRecord();
+  if (!activeRecord && getActivePatientId()) {
+    activeRecord = await refreshActivePatientRecord();
+  }
+
+  if (!activeRecord) {
+    statusSubtitle.textContent = "No patient is loaded right now. Go back to the clinician portal and enter a patient ID first.";
+    editPlanButton.textContent = "Open clinician portal";
+    editPlanButton.href = "./select.html";
+    return;
+  }
+
+  const trendData = await apiFetchPatientTrends(activeRecord.patientId);
+  const groupedItems = getAssignedItemsByCategory(activeRecord);
 
   statusPatientId.textContent = activeRecord.patientId;
-  statusStreak.textContent = `${getStreakCount(activeRecord.patientId)} days`;
-  statusCompleted.textContent = `${getCompletedSessions(activeRecord.patientId)}`;
+  statusStreak.textContent = `${getStreakCount(activeRecord)} days`;
+  statusCompleted.textContent = `${getCompletedSessions(activeRecord)}`;
 
   trendData.forEach((day) => {
     renderChartRow(completionChart, day.date.slice(5), day.completionPercent, 100, "completion-tone", "%");
@@ -43,3 +50,7 @@ if (!activeRecord) {
     statusPlanList.appendChild(item);
   });
 }
+
+renderStatus().catch((error) => {
+  statusSubtitle.textContent = error.message;
+});

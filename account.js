@@ -5,13 +5,12 @@ const emailInput = document.querySelector("#email-input");
 const passwordInput = document.querySelector("#password-input");
 const accountMessage = document.querySelector("#account-message");
 
-const profile = getClinicianProfile();
-firstNameInput.value = profile.firstName || "";
-lastNameInput.value = profile.lastName || "";
-emailInput.value = profile.email || "";
-passwordInput.value = profile.password || "";
+const profile = getClinicianSession();
+firstNameInput.value = profile?.firstName || "";
+lastNameInput.value = profile?.lastName || "";
+emailInput.value = profile?.email || "";
 
-accountForm.addEventListener("submit", (event) => {
+accountForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (
@@ -24,11 +23,20 @@ accountForm.addEventListener("submit", (event) => {
     return;
   }
 
-  saveClinicianProfile({
-    firstName: firstNameInput.value.trim(),
-    lastName: lastNameInput.value.trim(),
-    email: emailInput.value.trim(),
-    password: passwordInput.value
-  });
-  accountMessage.textContent = "Clinician account details saved on this device.";
+  accountMessage.textContent = "Creating clinician account...";
+
+  try {
+    await apiCreateClinicianAccount({
+      firstName: firstNameInput.value.trim(),
+      lastName: lastNameInput.value.trim(),
+      email: emailInput.value.trim(),
+      password: passwordInput.value
+    });
+    accountMessage.textContent = "Clinician account created. Opening the clinician portal...";
+    window.setTimeout(() => {
+      window.location.href = "./select.html";
+    }, 900);
+  } catch (error) {
+    accountMessage.textContent = error.message;
+  }
 });
