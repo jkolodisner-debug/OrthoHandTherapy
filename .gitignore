@@ -1,4 +1,8 @@
 users.db
 .Rhistory
 __pycache__/
+.pycache/
 firebase-config.js
+api/.python_packages/
+api/__pycache__/
+api/local.settings.json
