@@ -125,6 +125,18 @@ a {
   width: 100%;
 }
 
+.intro-role-button-patient {
+  background: var(--ua-blue);
+  border-color: var(--ua-blue);
+  color: #ffffff;
+}
+
+.intro-role-button-patient:hover {
+  background: var(--ua-blue-soft);
+  border-color: var(--ua-blue-soft);
+  color: #ffffff;
+}
+
 .welcome-sheet-overlay {
   position: fixed;
   inset: 0;
@@ -169,6 +181,11 @@ a {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.sheet-pill-patient {
+  background: rgba(12, 35, 75, 0.1);
+  color: var(--ua-blue);
 }
 
 .sheet-title {

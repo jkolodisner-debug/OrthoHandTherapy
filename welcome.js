@@ -30,6 +30,7 @@ function openSheet(role) {
   }
 
   selectedRole = role;
+  sheetPill.classList.toggle("sheet-pill-patient", role === "patient");
   sheetPill.textContent = config.pill;
   sheetTitle.textContent = config.title;
   sheetCopy.textContent = config.copy;
