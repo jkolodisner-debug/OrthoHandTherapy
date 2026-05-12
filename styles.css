@@ -78,6 +78,128 @@ a {
   min-height: 100vh;
 }
 
+.intro-screen {
+  position: relative;
+}
+
+.intro-card {
+  width: min(100%, 560px);
+  text-align: center;
+  padding: 44px 36px;
+  animation: intro-card-rise 560ms ease both;
+}
+
+.intro-logo-stack {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.intro-logo {
+  width: 92px;
+  height: 92px;
+}
+
+.intro-eyebrow {
+  margin-bottom: 0;
+}
+
+.intro-title {
+  margin-top: 18px;
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+}
+
+.intro-subtitle {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 1.2rem;
+}
+
+.intro-role-actions {
+  display: grid;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.intro-role-button {
+  width: 100%;
+}
+
+.welcome-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  align-items: end;
+  background: rgba(12, 35, 75, 0.18);
+  padding: 20px;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.welcome-sheet-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.welcome-sheet {
+  width: min(100%, 680px);
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--line);
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -24px 60px rgba(12, 35, 75, 0.16);
+  padding: 28px 28px 32px;
+  transform: translateY(100%);
+  transition: transform 260ms ease;
+}
+
+.welcome-sheet-overlay.is-visible .welcome-sheet {
+  transform: translateY(0);
+}
+
+.sheet-pill {
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(171, 4, 32, 0.08);
+  color: var(--brand);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sheet-title {
+  margin-top: 14px;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+}
+
+.sheet-copy {
+  margin: 14px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.sheet-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+@keyframes intro-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .hero-column,
 .card {
   border: 1px solid var(--line);
@@ -1094,6 +1216,10 @@ h2 {
   .portal-grid,
   .builder-grid,
   .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sheet-actions {
     grid-template-columns: 1fr;
   }
 

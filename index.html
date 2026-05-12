@@ -13,53 +13,41 @@
       href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=15" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body>
-    <main class="screen welcome-screen">
-      <section class="hero-column">
-        <div class="brand-lockup">
-          <img class="brand-logo-image" src="./assets/ua-logo.png" alt="University of Arizona logo" />
-          <div class="brand-copy">
-            <span class="brand-title">University of Arizona Health Sciences</span>
-            <span class="brand-subtitle">Orthopedic Hand Recovery Guide</span>
-          </div>
+    <main class="screen screen-centered intro-screen">
+      <section class="card intro-card">
+        <div class="intro-logo-stack">
+          <img class="brand-logo-image intro-logo" src="./assets/ua-logo.png" alt="University of Arizona logo" />
+          <p class="eyebrow intro-eyebrow">U of A Health Sciences</p>
         </div>
-        <p class="support-copy">
-          This app is for clinician-assigned exercise tracking only. Surgeons, therapists, or admins choose the permitted categories and exercises first, then patients see only the final daily checklist.
-        </p>
-        <div class="safety-banner hero-safety">
-          <strong>Safety</strong>
-          <ul class="safety-list" id="home-safety-list"></ul>
-        </div>
-      </section>
-
-      <section class="card auth-card role-choice-card">
-        <p class="eyebrow">Choose role</p>
-        <h2>Are you a clinician or patient?</h2>
-        <p class="support-copy">Choose the role that matches what you need to do.</p>
-        <div class="role-grid">
-          <article class="role-card">
-            <span class="stat-label">Clinician</span>
-            <h3>Clinician portal</h3>
-            <p class="support-copy">
-              Sign in or create a new clinician account before building and managing patient plans.
-            </p>
-            <a class="primary-button large-button" href="./clinician-auth.html">Continue as clinician</a>
-          </article>
-          <article class="role-card">
-            <span class="stat-label">Patient</span>
-            <h3>Patient access</h3>
-            <p class="support-copy">
-              Enter your patient ID to load your checklist and save progress under that ID.
-            </p>
-            <a class="nav-link large-button" href="./patient-access.html">Continue as patient</a>
-          </article>
+        <h1 class="intro-title">OrthoHandTherapyBeta</h1>
+        <p class="intro-subtitle">Are you a clinician or a patient?</p>
+        <div class="intro-role-actions">
+          <button class="primary-button large-button intro-role-button" type="button" data-role="clinician">
+            Clinician
+          </button>
+          <button class="nav-link large-button intro-role-button" type="button" data-role="patient">
+            Patient
+          </button>
         </div>
       </section>
     </main>
 
-    <script src="data.js?v=15"></script>
-    <script src="welcome.js?v=15"></script>
+    <div class="welcome-sheet-overlay hidden" id="welcome-sheet-overlay" aria-live="polite">
+      <section class="welcome-sheet" id="welcome-sheet">
+        <span class="sheet-pill" id="sheet-pill">Clinician</span>
+        <h2 class="sheet-title" id="sheet-title">Before you continue</h2>
+        <p class="sheet-copy" id="sheet-copy"></p>
+        <div class="sheet-actions">
+          <button class="nav-link large-button" id="sheet-back-button" type="button">Back</button>
+          <button class="primary-button large-button" id="sheet-continue-button" type="button">Continue</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="data.js?v=18"></script>
+    <script src="welcome.js?v=18"></script>
   </body>
 </html>
