@@ -125,18 +125,6 @@ a {
   width: 100%;
 }
 
-.intro-role-button-patient {
-  background: var(--ua-blue);
-  border-color: var(--ua-blue);
-  color: #ffffff;
-}
-
-.intro-role-button-patient:hover {
-  background: var(--ua-blue-soft);
-  border-color: var(--ua-blue-soft);
-  color: #ffffff;
-}
-
 .welcome-sheet-overlay {
   position: fixed;
   inset: 0;
@@ -579,6 +567,19 @@ h2 {
   border: 1px solid rgba(12, 35, 75, 0.2);
   box-shadow: 0 12px 24px rgba(12, 35, 75, 0.2);
   font-weight: 700;
+}
+
+.intro-role-button-patient {
+  background: linear-gradient(135deg, var(--ua-blue), #17376a);
+  border: 1px solid rgba(12, 35, 75, 0.2);
+  color: #f8fbff;
+  box-shadow: 0 12px 24px rgba(12, 35, 75, 0.2);
+}
+
+.intro-role-button-patient:hover {
+  background: linear-gradient(135deg, var(--ua-blue-soft), #25497b);
+  border-color: rgba(37, 73, 123, 0.28);
+  color: #f8fbff;
 }
 
 .large-button {
