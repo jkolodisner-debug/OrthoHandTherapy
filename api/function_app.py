@@ -41,16 +41,17 @@ def clinician_signup(req: func.HttpRequest) -> func.HttpResponse:
         return error
 
     payload = request_json(req)
+    invite_code = (payload.get("inviteCode") or "").strip()
     first_name = (payload.get("firstName") or "").strip()
     last_name = (payload.get("lastName") or "").strip()
     email = (payload.get("email") or "").strip()
     password = payload.get("password") or ""
 
-    if not all([first_name, last_name, email, password]):
-        return error_response("First name, last name, email, and password are all required.")
+    if not all([invite_code, first_name, last_name, email, password]):
+        return error_response("Invite code, first name, last name, email, and password are all required.")
 
     try:
-        clinician = store.create_clinician(first_name, last_name, email, password)
+        clinician = store.create_clinician(invite_code, first_name, last_name, email, password)
     except ValueError as exc:
         return error_response(str(exc), status_code=409)
 

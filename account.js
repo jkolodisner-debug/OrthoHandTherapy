@@ -3,6 +3,8 @@ const firstNameInput = document.querySelector("#first-name-input");
 const lastNameInput = document.querySelector("#last-name-input");
 const emailInput = document.querySelector("#email-input");
 const passwordInput = document.querySelector("#password-input");
+const inviteCodeField = document.querySelector("#invite-code-field");
+const inviteCodeInput = document.querySelector("#invite-code-input");
 const accountMessage = document.querySelector("#account-message");
 const accountEyebrow = document.querySelector("#account-eyebrow");
 const accountTitle = document.querySelector("#account-title");
@@ -28,6 +30,7 @@ if (isDetailsMode) {
   accountSupportCopy.textContent =
     "Review the saved clinician name and email for this session. Password is never shown here.";
   accountSubmitButton.hidden = true;
+  inviteCodeField.classList.add("hidden");
   accountTopLink.href = "./select.html";
   accountTopLink.textContent = "Clinician portal";
   accountSecondaryLink.href = "./select.html";
@@ -42,6 +45,8 @@ if (isDetailsMode) {
   passwordToggleButton.hidden = true;
   resetPasswordSection.classList.remove("hidden");
 } else {
+  accountSupportCopy.textContent =
+    "Use the clinician invite code to create an account with first name, last name, email, and password.";
   accountTopLink.href = "./clinician-auth.html";
   accountTopLink.textContent = "Back";
   accountSecondaryLink.href = "./clinician-auth.html";
@@ -85,12 +90,13 @@ accountForm.addEventListener("submit", async (event) => {
   }
 
   if (
+    !inviteCodeInput.value.trim() ||
     !firstNameInput.value.trim() ||
     !lastNameInput.value.trim() ||
     !emailInput.value.trim() ||
     !passwordInput.value.trim()
   ) {
-    accountMessage.textContent = "Please complete first name, last name, email, and password.";
+    accountMessage.textContent = "Please complete the invite code, first name, last name, email, and password.";
     return;
   }
 
@@ -98,6 +104,7 @@ accountForm.addEventListener("submit", async (event) => {
 
   try {
     await apiCreateClinicianAccount({
+      inviteCode: inviteCodeInput.value.trim(),
       firstName: firstNameInput.value.trim(),
       lastName: lastNameInput.value.trim(),
       email: emailInput.value.trim(),

@@ -194,10 +194,10 @@ function getRememberedPatientId() {
   return localStorage.getItem(PREFERENCE_STORAGE_KEYS.rememberedPatientId) || "";
 }
 
-async function apiCreateClinicianAccount({ firstName, lastName, email, password }) {
+async function apiCreateClinicianAccount({ inviteCode, firstName, lastName, email, password }) {
   const payload = await apiRequest("/clinician/signup", {
     method: "POST",
-    body: JSON.stringify({ firstName, lastName, email, password })
+    body: JSON.stringify({ inviteCode, firstName, lastName, email, password })
   });
   saveClinicianSession(payload.clinician, true);
   return payload.clinician;

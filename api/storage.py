@@ -43,8 +43,27 @@ def normalize_email(value):
     return (value or "").strip().lower()
 
 
+def normalize_invite_code(value):
+    return (value or "").strip()
+
+
 def normalize_patient_id(value):
     return (value or "").strip().upper()
+
+
+def parse_daily_count(value):
+    text = f"{value or ''}".strip().lower()
+    if not text:
+        return None
+
+    import re
+
+    match = re.match(r"^(\d+)(?:\s*x)?(?:\s+daily)?$", text)
+    if not match:
+        return None
+
+    count = int(match.group(1))
+    return count if count > 0 else None
 
 
 def new_clinician_id():
@@ -82,6 +101,7 @@ class TableBackedAppStore:
         self.patients_table = os.getenv("PATIENTS_TABLE", "Patients")
         self.plans_table = os.getenv("PLANS_TABLE", "Plans")
         self.progress_table = os.getenv("PROGRESS_TABLE", "ProgressLogs")
+        self.clinician_invite_code = os.getenv("CLINICIAN_INVITE_CODE", "OrthoHandTherapyBeta").strip()
         self._ensure_tables()
 
     def _ensure_tables(self):
@@ -122,7 +142,13 @@ class TableBackedAppStore:
         )
         return next(iter(entities), None)
 
-    def create_clinician(self, first_name, last_name, email, password):
+    def invite_code_is_valid(self, invite_code):
+        return normalize_invite_code(invite_code) == self.clinician_invite_code
+
+    def create_clinician(self, invite_code, first_name, last_name, email, password):
+        if not self.invite_code_is_valid(invite_code):
+            raise ValueError("That invite code is not valid.")
+
         normalized_email = normalize_email(email)
         if self.find_clinician_by_email(normalized_email):
             raise ValueError("An account with that email already exists.")
@@ -245,6 +271,20 @@ class TableBackedAppStore:
         existing_patient = self._find_patient_entity(normalized_patient_id)
         plan_version = 1
 
+        normalized_items = []
+        for item in assigned_items:
+            inferred_count = parse_daily_count(item.get("default_frequency"))
+            normalized_items.append(
+                {
+                    **item,
+                    "default_frequency": item.get("default_frequency", "").strip() if item.get("default_frequency") else "",
+                    "daily_target_count": max(
+                        1,
+                        int(item.get("daily_target_count") or 0) or inferred_count or 1,
+                    ),
+                }
+            )
+
         if existing_patient and existing_patient.get("clinicianId") != clinician_id:
             raise ValueError("That patient ID is already assigned to another clinician.")
 
@@ -270,7 +310,7 @@ class TableBackedAppStore:
             "patientId": normalized_patient_id,
             "clinicianId": clinician_id,
             "selectedCategoriesJson": json_dumps(selected_categories),
-            "assignedItemsJson": json_dumps(assigned_items),
+            "assignedItemsJson": json_dumps(normalized_items),
             "clinicianNotes": clinician_notes or "",
             "createdAt": plan_entity.get("createdAt", now) if plan_entity else now,
             "updatedAt": now,
