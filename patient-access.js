@@ -1,6 +1,10 @@
 const patientAccessForm = document.querySelector("#patient-access-form");
 const patientIdInput = document.querySelector("#patient-id-input");
 const patientAccessMessage = document.querySelector("#patient-access-message");
+const patientRemember = document.querySelector("#patient-remember");
+
+patientRemember.checked = true;
+patientIdInput.value = getActivePatientId();
 
 patientAccessForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -8,7 +12,7 @@ patientAccessForm.addEventListener("submit", async (event) => {
   patientAccessMessage.textContent = "Loading patient plan...";
 
   try {
-    await apiFetchPatientRecord(patientIdInput.value);
+    await apiFetchPatientRecordWithPreference(patientIdInput.value, patientRemember.checked);
     patientAccessMessage.textContent = "";
     window.location.href = "./progress.html";
   } catch (error) {

@@ -96,25 +96,58 @@ function getCurrentClinicianId() {
   return getClinicianSession()?.clinicianId || "";
 }
 
-function setActivePatientId(patientId) {
+function getPatientSessionStorage() {
+  if (sessionStorage.getItem(SESSION_STORAGE_KEYS.activePatientId)) {
+    return sessionStorage;
+  }
+
+  return localStorage;
+}
+
+function setActivePatientId(patientId, rememberOnDevice = null) {
+  const existingStorage = getPatientSessionStorage();
+  localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
+
   if (patientId) {
-    localStorage.setItem(SESSION_STORAGE_KEYS.activePatientId, patientId);
-  } else {
-    localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
+    const targetStorage =
+      rememberOnDevice === null
+        ? existingStorage
+        : rememberOnDevice
+          ? localStorage
+          : sessionStorage;
+
+    targetStorage.setItem(SESSION_STORAGE_KEYS.activePatientId, patientId);
   }
 }
 
 function getActivePatientId() {
-  return localStorage.getItem(SESSION_STORAGE_KEYS.activePatientId) || "";
+  return (
+    sessionStorage.getItem(SESSION_STORAGE_KEYS.activePatientId) ||
+    localStorage.getItem(SESSION_STORAGE_KEYS.activePatientId) ||
+    ""
+  );
 }
 
 function clearActivePatientId() {
   localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
 }
 
-function saveActivePatientRecord(record) {
-  saveSessionStorage(SESSION_STORAGE_KEYS.activePatientRecord, record);
-  setActivePatientId(record?.patientId || "");
+function saveActivePatientRecord(record, rememberOnDevice = null) {
+  const existingStorage = getPatientSessionStorage();
+  localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
+
+  const targetStorage =
+    rememberOnDevice === null
+      ? existingStorage
+      : rememberOnDevice
+        ? localStorage
+        : sessionStorage;
+
+  saveSessionStorage(SESSION_STORAGE_KEYS.activePatientRecord, record, targetStorage);
+  setActivePatientId(record?.patientId || "", rememberOnDevice);
 }
 
 function getActivePatientRecord() {
@@ -129,6 +162,7 @@ function getActivePatientRecord() {
 
 function clearActivePatientRecord() {
   localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
 }
 
 async function apiCreateClinicianAccount({ firstName, lastName, email, password }) {
@@ -187,6 +221,12 @@ async function apiFetchClinicianPatients() {
 async function apiFetchPatientRecord(patientId) {
   const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}`);
   saveActivePatientRecord(payload.patient);
+  return payload.patient;
+}
+
+async function apiFetchPatientRecordWithPreference(patientId, rememberOnDevice) {
+  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}`);
+  saveActivePatientRecord(payload.patient, rememberOnDevice);
   return payload.patient;
 }
 
