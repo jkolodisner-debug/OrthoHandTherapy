@@ -120,6 +120,31 @@ async function apiSignInClinician({ email, password }) {
   return payload.clinician;
 }
 
+async function apiFetchClinicianDetails() {
+  const clinicianId = getCurrentClinicianId();
+  if (!clinicianId) {
+    throw new Error("No clinician is signed in.");
+  }
+
+  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}`);
+  saveClinicianSession(payload.clinician);
+  return payload.clinician;
+}
+
+async function apiResetClinicianPassword(newPassword) {
+  const clinicianId = getCurrentClinicianId();
+  if (!clinicianId) {
+    throw new Error("No clinician is signed in.");
+  }
+
+  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/reset-password`, {
+    method: "POST",
+    body: JSON.stringify({ newPassword })
+  });
+  saveClinicianSession(payload.clinician);
+  return payload.clinician;
+}
+
 async function apiFetchClinicianPatients() {
   const clinicianId = getCurrentClinicianId();
   if (!clinicianId) {

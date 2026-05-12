@@ -78,6 +78,44 @@ def clinician_signin(req: func.HttpRequest) -> func.HttpResponse:
     return json_response({"ok": True, "clinician": clinician})
 
 
+@app.route(route="clinicians/{clinicianId}", methods=["GET"])
+def get_clinician(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    clinician_id = (req.route_params.get("clinicianId") or "").strip()
+    if not clinician_id:
+        return error_response("Clinician ID is required.")
+
+    clinician = store.get_clinician(clinician_id)
+    if not clinician:
+        return error_response("Clinician account not found.", status_code=404)
+
+    return json_response({"ok": True, "clinician": clinician})
+
+
+@app.route(route="clinicians/{clinicianId}/reset-password", methods=["POST"])
+def reset_clinician_password(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    clinician_id = (req.route_params.get("clinicianId") or "").strip()
+    payload = request_json(req)
+    new_password = payload.get("newPassword") or ""
+
+    if not clinician_id:
+        return error_response("Clinician ID is required.")
+
+    try:
+        clinician = store.reset_clinician_password(clinician_id, new_password)
+    except ValueError as exc:
+        return error_response(str(exc), status_code=400)
+
+    return json_response({"ok": True, "clinician": clinician})
+
+
 @app.route(route="clinicians/{clinicianId}/patients", methods=["GET"])
 def clinician_patients(req: func.HttpRequest) -> func.HttpResponse:
     store, error = store_or_error()

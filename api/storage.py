@@ -156,6 +156,36 @@ class TableBackedAppStore:
 
         return self._serialize_clinician(entity)
 
+    def get_clinician(self, clinician_id):
+        if not clinician_id:
+            return None
+
+        try:
+            entity = self._clinicians().get_entity("CLINICIAN", clinician_id)
+        except Exception:
+            return None
+
+        return self._serialize_clinician(entity)
+
+    def reset_clinician_password(self, clinician_id, new_password):
+        if not clinician_id:
+            raise ValueError("Clinician ID is required.")
+
+        if not new_password or len(new_password) < 8:
+            raise ValueError("New password must be at least 8 characters.")
+
+        try:
+            entity = self._clinicians().get_entity("CLINICIAN", clinician_id)
+        except Exception as exc:
+            raise ValueError("Clinician account not found.") from exc
+
+        password_data = hash_password(new_password)
+        entity["passwordHash"] = password_data["hash"]
+        entity["passwordSalt"] = password_data["salt"]
+        entity["updatedAt"] = utc_now_iso()
+        self._clinicians().upsert_entity(entity, mode=UpdateMode.REPLACE)
+        return self._serialize_clinician(entity)
+
     def _serialize_clinician(self, entity):
         return {
             "clinicianId": entity["RowKey"],

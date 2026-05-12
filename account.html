@@ -49,6 +49,32 @@
           <button class="primary-button large-button" id="account-submit-button" type="submit">Create clinician account</button>
         </form>
         <p class="completion-message" id="account-message"></p>
+        <section class="builder-section hidden" id="reset-password-section">
+          <div class="builder-heading">
+            <div>
+              <span class="stat-label">Reset password</span>
+              <h2>Set a new password</h2>
+            </div>
+          </div>
+          <form class="auth-form" id="reset-password-form">
+            <label class="builder-field">
+              <span>New password</span>
+              <div class="password-field-row">
+                <input id="new-password-input" type="password" />
+                <button class="nav-link inline-button password-toggle-button" id="new-password-toggle" type="button">Show</button>
+              </div>
+            </label>
+            <label class="builder-field">
+              <span>Confirm new password</span>
+              <div class="password-field-row">
+                <input id="confirm-password-input" type="password" />
+                <button class="nav-link inline-button password-toggle-button" id="confirm-password-toggle" type="button">Show</button>
+              </div>
+            </label>
+            <button class="primary-button large-button" id="reset-password-button" type="submit">Save new password</button>
+          </form>
+          <p class="completion-message" id="reset-password-message"></p>
+        </section>
         <div class="portal-grid compact-grid">
           <a class="nav-link large-button" id="account-secondary-link" href="./clinician-auth.html">Clinician access</a>
           <a class="nav-link large-button" href="./index.html">Return home</a>
@@ -56,8 +82,8 @@
       </section>
     </main>
 
-    <script src="data.js?v=16"></script>
-    <script src="api-client.js?v=16"></script>
-    <script src="account.js?v=16"></script>
+    <script src="data.js?v=17"></script>
+    <script src="api-client.js?v=17"></script>
+    <script src="account.js?v=17"></script>
   </body>
 </html>
