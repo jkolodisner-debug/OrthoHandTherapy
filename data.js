@@ -227,10 +227,10 @@ function makeLibraryItem(category, name) {
 
   const defaultFrequency =
     category.key === "splint-brace" || category.key === "postoperative-protection"
-      ? "Check daily"
+      ? "1 required daily"
       : category.key === "functional-goals"
-        ? "1x daily practice"
-        : "2x daily";
+        ? "1 required daily"
+        : "2 required daily";
 
   const defaultDose =
     category.key === "edema-pain"

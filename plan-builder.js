@@ -22,16 +22,6 @@ function updateSaveState() {
   savePlanButton.disabled = assignedItemIds.size === 0;
 }
 
-function normalizeFrequencyLabel(value) {
-  const raw = `${value || ""}`.trim();
-  const count = parseDailyCount(raw);
-  if (!count) {
-    return raw;
-  }
-
-  return `${count}x daily`;
-}
-
 function syncAssignedItem(card, isChecked) {
   card.classList.toggle("is-active", isChecked);
   card.querySelectorAll("textarea, input[type='text'], input[type='number']").forEach((field) => {
@@ -68,9 +58,8 @@ function renderCategoryEditors() {
       const card = assignedItemTemplate.content.firstElementChild.cloneNode(true);
       const checkbox = card.querySelector(".assigned-item-checkbox");
       const descriptionInput = card.querySelector(".description-input");
-      const frequencyInput = card.querySelector(".frequency-input");
-      const doseInput = card.querySelector(".dose-input");
       const targetInput = card.querySelector(".target-input");
+      const doseInput = card.querySelector(".dose-input");
       const warningInput = card.querySelector(".warning-input");
       const painStopInput = card.querySelector(".pain-stop-input");
       const progressionInput = card.querySelector(".progression-input");
@@ -81,18 +70,21 @@ function renderCategoryEditors() {
       const fieldsPanel = card.querySelector(".assigned-item-fields");
       const saved = assignedOverrides.get(item.id) || item;
       const isChecked = assignedItemIds.has(item.id);
-      const targetCount = Math.max(1, Number(saved.daily_target_count) || 1);
+      const targetCount = Math.max(
+        1,
+        Number(saved.daily_target_count) || parseDailyCount(saved.default_frequency) || 1
+      );
+      const metaLabel = card.querySelector(".assigned-item-meta");
 
       card.querySelector(".assigned-item-title").textContent = item.name;
-      card.querySelector(".assigned-item-meta").textContent = item.requires_prescription
+      metaLabel.textContent = item.requires_prescription
         ? "Requires clinician prescription or approval"
         : `Standard tracked item • patient must complete ${targetCount} each day`;
 
       checkbox.checked = isChecked;
       descriptionInput.value = saved.patient_friendly_description;
-      frequencyInput.value = normalizeFrequencyLabel(saved.default_frequency);
-      doseInput.value = saved.default_sets_reps_duration;
       targetInput.value = targetCount;
+      doseInput.value = saved.default_sets_reps_duration;
       warningInput.value = saved.contraindication_warning;
       painStopInput.value = saved.pain_stop_rule;
       progressionInput.value = saved.progression_notes;
@@ -116,6 +108,13 @@ function renderCategoryEditors() {
 
         syncAssignedItem(card, checkbox.checked);
         updateSaveState();
+      });
+
+      targetInput.addEventListener("input", () => {
+        const inferred = Math.max(1, Number(targetInput.value) || 1);
+        metaLabel.textContent = item.requires_prescription
+          ? "Requires clinician prescription or approval"
+          : `Standard tracked item • patient must complete ${inferred} each day`;
       });
 
       itemList.appendChild(card);
@@ -144,14 +143,9 @@ function collectAssignedItems() {
       items.push({
         ...item,
         patient_friendly_description: card.querySelector(".description-input").value.trim() || item.patient_friendly_description,
-        default_frequency: normalizeFrequencyLabel(card.querySelector(".frequency-input").value.trim()) || item.default_frequency,
+        default_frequency: `${Math.max(1, Number(card.querySelector(".target-input").value) || 1)} required daily`,
         default_sets_reps_duration: card.querySelector(".dose-input").value.trim() || item.default_sets_reps_duration,
-        daily_target_count: Math.max(
-          1,
-          Number(card.querySelector(".target-input").value) ||
-            parseDailyCount(card.querySelector(".frequency-input").value.trim()) ||
-            1
-        ),
+        daily_target_count: Math.max(1, Number(card.querySelector(".target-input").value) || 1),
         contraindication_warning: card.querySelector(".warning-input").value.trim() || item.contraindication_warning,
         pain_stop_rule: card.querySelector(".pain-stop-input").value.trim() || item.pain_stop_rule,
         progression_notes: card.querySelector(".progression-input").value.trim() || item.progression_notes,
