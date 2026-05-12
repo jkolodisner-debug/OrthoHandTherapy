@@ -5,11 +5,6 @@ const emailInput = document.querySelector("#email-input");
 const passwordInput = document.querySelector("#password-input");
 const accountMessage = document.querySelector("#account-message");
 
-const profile = getClinicianSession();
-firstNameInput.value = profile?.firstName || "";
-lastNameInput.value = profile?.lastName || "";
-emailInput.value = profile?.email || "";
-
 accountForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
