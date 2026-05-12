@@ -8,6 +8,7 @@ const accountEyebrow = document.querySelector("#account-eyebrow");
 const accountTitle = document.querySelector("#account-title");
 const accountSupportCopy = document.querySelector("#account-support-copy");
 const accountSubmitButton = document.querySelector("#account-submit-button");
+const passwordToggleButton = document.querySelector("#password-toggle-button");
 
 const params = new URLSearchParams(window.location.search);
 const isDetailsMode = params.get("mode") === "details";
@@ -32,7 +33,14 @@ if (isDetailsMode) {
   passwordInput.value = "";
   passwordInput.placeholder = "Password hidden";
   passwordInput.disabled = true;
+  passwordToggleButton.hidden = true;
 }
+
+passwordToggleButton.addEventListener("click", () => {
+  const shouldShow = passwordInput.type === "password";
+  passwordInput.type = shouldShow ? "text" : "password";
+  passwordToggleButton.textContent = shouldShow ? "Hide" : "Show";
+});
 
 accountForm.addEventListener("submit", async (event) => {
   event.preventDefault();

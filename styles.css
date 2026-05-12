@@ -271,6 +271,18 @@ h2 {
   margin-top: 8px;
 }
 
+.password-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.password-toggle-button {
+  margin-top: 0;
+  white-space: nowrap;
+}
+
 .patient-list {
   display: grid;
   gap: 14px;
