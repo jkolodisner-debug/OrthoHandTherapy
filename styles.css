@@ -113,6 +113,7 @@ a {
   margin: 16px 0 0;
   color: var(--muted);
   font-size: 1.2rem;
+  line-height: 1.6;
 }
 
 .intro-role-actions {
@@ -123,6 +124,24 @@ a {
 
 .intro-role-button {
   width: 100%;
+}
+
+.intro-clinician-link {
+  margin-top: 22px;
+  border: none;
+  background: transparent;
+  color: var(--ua-blue);
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  transition: color 160ms ease, transform 160ms ease;
+}
+
+.intro-clinician-link:hover {
+  color: var(--ua-blue-soft);
+  transform: translateY(-1px);
 }
 
 .welcome-sheet-overlay {

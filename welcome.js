@@ -1,4 +1,4 @@
-const roleButtons = document.querySelectorAll(".intro-role-button");
+const roleButtons = document.querySelectorAll("[data-role]");
 const sheetOverlay = document.querySelector("#welcome-sheet-overlay");
 const sheetPill = document.querySelector("#sheet-pill");
 const sheetTitle = document.querySelector("#sheet-title");
