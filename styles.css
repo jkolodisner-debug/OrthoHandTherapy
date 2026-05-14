@@ -144,6 +144,13 @@ a {
   transform: translateY(-1px);
 }
 
+.intro-version-history {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  letter-spacing: 0.01em;
+}
+
 .welcome-sheet-overlay {
   position: fixed;
   inset: 0;
