@@ -7,6 +7,10 @@
     "CLINICIANS_TABLE": "Clinicians",
     "PATIENTS_TABLE": "Patients",
     "PLANS_TABLE": "Plans",
-    "PROGRESS_TABLE": "ProgressLogs"
+    "PROGRESS_TABLE": "ProgressLogs",
+    "AZURE_COMMUNICATION_SERVICES_CONNECTION_STRING": "endpoint=https://YOUR_RESOURCE.communication.azure.com/;accesskey=YOUR_KEY",
+    "ACS_EMAIL_SENDER": "DoNotReply@YOUR_DOMAIN.azurecomm.net",
+    "FRONTEND_BASE_URL": "https://victorious-forest-016e84e10.7.azurestaticapps.net",
+    "RESET_PASSWORD_TTL_MINUTES": "30"
   }
 }

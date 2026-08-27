@@ -981,6 +981,22 @@ h2 {
   font-size: 0.92rem;
 }
 
+.auth-inline-link {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.auth-inline-link a {
+  color: var(--ua-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-inline-link a:hover {
+  color: #365d8f;
+  text-decoration: underline;
+}
+
 .auth-error {
   min-height: 24px;
   margin: 0;

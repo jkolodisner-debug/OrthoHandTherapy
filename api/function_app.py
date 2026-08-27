@@ -2,6 +2,7 @@ import json
 
 import azure.functions as func
 
+from emailer import send_clinician_reset_email
 from storage import TableBackedAppStore, today_iso
 
 
@@ -119,6 +120,49 @@ def reset_clinician_password(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         clinician = store.reset_clinician_password(clinician_id, new_password)
+    except ValueError as exc:
+        return error_response(str(exc), status_code=400)
+
+    return json_response({"ok": True, "clinician": clinician})
+
+
+@app.route(route="clinician/forgot-password", methods=["POST"])
+def forgot_clinician_password(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    email = (request_json(req).get("email") or "").strip()
+    if not email:
+        return error_response("Email is required.")
+
+    reset_request = store.create_clinician_reset_token(email)
+    if reset_request:
+        try:
+            send_clinician_reset_email(reset_request["email"], reset_request["token"])
+        except RuntimeError as exc:
+            return error_response(str(exc), status_code=500)
+
+    return json_response(
+        {
+            "ok": True,
+            "message": "If that email matches a clinician account, a reset link has been sent."
+        }
+    )
+
+
+@app.route(route="clinician/reset-password", methods=["POST"])
+def reset_clinician_password_by_token(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    payload = request_json(req)
+    token = (payload.get("token") or "").strip()
+    new_password = payload.get("newPassword") or ""
+
+    try:
+        clinician = store.reset_clinician_password_with_token(token, new_password)
     except ValueError as exc:
         return error_response(str(exc), status_code=400)
 

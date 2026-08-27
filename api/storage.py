@@ -188,6 +188,10 @@ def verify_password(password, salt_b64, hash_b64):
     return secrets.compare_digest(comparison["hash"], hash_b64)
 
 
+def hash_reset_token(token):
+    return hashlib.sha256((token or "").encode("utf-8")).hexdigest()
+
+
 class TableBackedAppStore:
     def __init__(self):
         connection_string = (
@@ -203,6 +207,7 @@ class TableBackedAppStore:
         self.plans_table = os.getenv("PLANS_TABLE", "Plans")
         self.progress_table = os.getenv("PROGRESS_TABLE", "ProgressLogs")
         self.clinician_invite_code = os.getenv("CLINICIAN_INVITE_CODE", "").strip()
+        self.reset_password_ttl_minutes = max(5, int(os.getenv("RESET_PASSWORD_TTL_MINUTES", "30") or 30))
         if not self.clinician_invite_code:
             raise RuntimeError("Missing CLINICIAN_INVITE_CODE environment variable.")
         self._ensure_tables()
@@ -325,6 +330,61 @@ class TableBackedAppStore:
         password_data = hash_password(new_password)
         entity["passwordHash"] = password_data["hash"]
         entity["passwordSalt"] = password_data["salt"]
+        entity["resetTokenHash"] = ""
+        entity["resetTokenExpiresAt"] = ""
+        entity["updatedAt"] = utc_now_iso()
+        self._clinicians().upsert_entity(entity, mode=UpdateMode.REPLACE)
+        return self._serialize_clinician(entity)
+
+    def create_clinician_reset_token(self, email):
+        entity = self.find_clinician_by_email(email)
+        if not entity:
+            return None
+
+        token = secrets.token_urlsafe(32)
+        entity["resetTokenHash"] = hash_reset_token(token)
+        entity["resetTokenExpiresAt"] = (utc_now() + timedelta(minutes=self.reset_password_ttl_minutes)).isoformat()
+        entity["updatedAt"] = utc_now_iso()
+        self._clinicians().upsert_entity(entity, mode=UpdateMode.REPLACE)
+        return {
+            "token": token,
+            "email": entity.get("email", ""),
+            "expiresAt": entity["resetTokenExpiresAt"],
+        }
+
+    def reset_clinician_password_with_token(self, token, new_password):
+        if not token:
+            raise ValueError("Reset token is required.")
+
+        if not new_password or len(new_password) < 8:
+            raise ValueError("New password must be at least 8 characters.")
+
+        token_hash = hash_reset_token(token)
+        entities = self._clinicians().query_entities(
+            query_filter="PartitionKey eq 'CLINICIAN' and resetTokenHash eq @tokenHash",
+            parameters={"tokenHash": token_hash},
+        )
+        entity = next(iter(entities), None)
+        if not entity:
+            raise ValueError("This reset link is invalid or has already been used.")
+
+        expires_at = entity.get("resetTokenExpiresAt", "")
+        if not expires_at:
+            raise ValueError("This reset link is invalid or has already been used.")
+
+        try:
+            expires_at_value = datetime.fromisoformat(expires_at)
+        except ValueError as exc:
+            raise ValueError("This reset link is invalid or has already been used.") from exc
+
+        if expires_at_value <= utc_now():
+            raise ValueError("This reset link has expired. Request a new one.")
+
+        password_data = hash_password(new_password)
+        entity["passwordHash"] = password_data["hash"]
+        entity["passwordSalt"] = password_data["salt"]
+        entity["resetTokenHash"] = ""
+        entity["resetTokenExpiresAt"] = ""
         entity["updatedAt"] = utc_now_iso()
         self._clinicians().upsert_entity(entity, mode=UpdateMode.REPLACE)
         return self._serialize_clinician(entity)
