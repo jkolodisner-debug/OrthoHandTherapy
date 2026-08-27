@@ -510,13 +510,29 @@ function getCompletedWeekCount(record = getActivePatientRecord()) {
   return completedWeeks.size;
 }
 
+function getDefaultAssignedItems() {
+  return EXERCISE_LIBRARY.map((exercise) => ({ ...exercise }));
+}
+
 function getAssignedCategories(record = getActivePatientRecord()) {
-  const selectedIds = new Set(record?.selectedCategories || []);
+  const selectedIds = new Set(
+    (record?.selectedCategories && record.selectedCategories.length)
+      ? record.selectedCategories
+      : CATEGORY_DEFINITIONS.map((category) => category.id)
+  );
   return CATEGORY_DEFINITIONS.filter((category) => selectedIds.has(category.id));
 }
 
 function getAssignedItems(record = getActivePatientRecord()) {
-  return record?.assignedItems || [];
+  if (!record) {
+    return [];
+  }
+
+  if (record.assignedItems?.length) {
+    return record.assignedItems;
+  }
+
+  return getDefaultAssignedItems();
 }
 
 function getAssignedItemsByCategory(record = getActivePatientRecord()) {
@@ -535,7 +551,7 @@ function getAssignedItemsByCategory(record = getActivePatientRecord()) {
 }
 
 function hasAssignedPlan(record = getActivePatientRecord()) {
-  return getAssignedItems(record).length > 0;
+  return Boolean(record) && getAssignedItems(record).length > 0;
 }
 
 function getDailyItemLog(record = getActivePatientRecord(), date = getTodayIsoDate()) {

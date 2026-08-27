@@ -23,14 +23,6 @@ async function renderPatientPortal() {
   }
 
   patientCode.textContent = activeRecord.patientId || "Not loaded";
-
-  if (!hasAssignedPlan(activeRecord)) {
-    openDailyChecklist.textContent = "Plan coming soon";
-    openDailyChecklist.href = "#";
-    openDailyChecklist.classList.add("is-disabled");
-    openCurrentProgress.classList.add("is-disabled");
-    return;
-  }
 }
 
 renderPatientPortal().catch(() => {
