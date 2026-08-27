@@ -502,6 +502,8 @@ class TableBackedAppStore:
             "RowKey": patient_id,
             "patientId": patient_id,
             "clinicianId": clinician_id,
+            "firstName": "",
+            "lastName": "",
             "completedSessions": 0,
             "streakCount": 0,
             "lastCompletedOn": "",
@@ -608,13 +610,15 @@ class TableBackedAppStore:
             clinician_notes="",
         )
 
-    def activate_patient(self, patient_id, email):
+    def create_patient_account(self, patient_id, first_name, last_name, email, password, local_date=None):
         normalized_id = normalize_patient_id(patient_id)
         patient = self._find_patient_entity(normalized_id)
         if not patient:
             raise ValueError("Patient ID not found. Check the ID provided by your clinician.")
         if patient.get("passwordHash"):
             raise ValueError("This patient ID already has an account. Please sign in instead.")
+        if len(password or "") < 8:
+            raise ValueError("Password must be at least 8 characters.")
         normalized_email = normalize_email(email)
         if not normalized_email:
             raise ValueError("Email is required.")
@@ -622,23 +626,23 @@ class TableBackedAppStore:
         if existing_email_patient and existing_email_patient.get("RowKey") != normalized_id:
             raise ValueError("That email is already being used for another patient account.")
         now = utc_now_iso()
+        password_data = hash_password(password)
         patient.update(
             {
+                "firstName": (first_name or "").strip(),
+                "lastName": (last_name or "").strip(),
                 "email": normalized_email,
+                "passwordHash": password_data["hash"],
+                "passwordSalt": password_data["salt"],
+                "accountActivated": True,
+                "activatedAt": now,
+                "resetTokenHash": "",
+                "resetTokenExpiresAt": "",
                 "updatedAt": now,
             }
         )
         self._patients().upsert_entity(patient, mode=UpdateMode.MERGE)
-        token = secrets.token_urlsafe(32)
-        patient["resetTokenHash"] = hash_reset_token(token)
-        patient["resetTokenExpiresAt"] = (utc_now() + timedelta(minutes=self.reset_password_ttl_minutes)).isoformat()
-        patient["updatedAt"] = utc_now_iso()
-        self._patients().upsert_entity(patient, mode=UpdateMode.MERGE)
-        return {
-            "token": token,
-            "email": normalized_email,
-            "expiresAt": patient["resetTokenExpiresAt"],
-        }
+        return self.get_patient_record(normalized_id, local_date=local_date)
 
     def sign_in_patient(self, email, password, local_date=None):
         patient = self.find_patient_by_email(email)
@@ -731,6 +735,8 @@ class TableBackedAppStore:
 
         return {
             "patientId": normalized_id,
+            "firstName": patient_entity.get("firstName", ""),
+            "lastName": patient_entity.get("lastName", ""),
             "email": patient_entity.get("email", ""),
             "clinicianId": patient_entity.get("clinicianId", patient_entity["PartitionKey"]),
             "selectedCategories": plan_payload["selectedCategories"],
@@ -754,6 +760,8 @@ class TableBackedAppStore:
             patients.append(
                 {
                     "patientId": entity["RowKey"],
+                    "firstName": entity.get("firstName", ""),
+                    "lastName": entity.get("lastName", ""),
                     "email": entity.get("email", ""),
                     "clinicianId": clinician_id,
                     "completedSessions": int(entity.get("completedSessions", 0) or 0),
