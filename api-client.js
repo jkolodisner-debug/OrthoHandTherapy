@@ -1,14 +1,17 @@
-const API_BASE_URL = "https://orthohandtherapy-aqavbrhucuh3hgcs.eastus2-01.azurewebsites.net/api";
+const API_BASE_URL = window.__APP_CONFIG__?.apiBaseUrl || "/api";
+const CLINICIAN_SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
+const PATIENT_SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 
 const SESSION_STORAGE_KEYS = {
-  clinicianSession: "orthoMotionClinicianSession",
-  activePatientId: "orthoMotionActivePatientId",
-  activePatientRecord: "orthoMotionActivePatientRecord"
+  clinicianSession: "orthoHandRecoveryClinicianSession",
+  activePatientId: "orthoHandRecoveryActivePatientId",
+  activePatientRecord: "orthoHandRecoveryActivePatientRecord"
 };
 
 const PREFERENCE_STORAGE_KEYS = {
-  rememberedClinicianEmail: "orthoMotionRememberedClinicianEmail",
-  rememberedPatientId: "orthoMotionRememberedPatientId"
+  rememberedClinicianEmail: "orthoHandRecoveryRememberedClinicianEmail",
+  rememberedPatientId: "orthoHandRecoveryRememberedPatientId",
+  patientSessionExpiresAt: "orthoHandRecoveryPatientSessionExpiresAt"
 };
 
 function readStorageValue(storage, key, fallback) {
@@ -74,22 +77,36 @@ async function apiRequest(path, options = {}) {
 }
 
 function getClinicianSession() {
-  return readSessionStorage(SESSION_STORAGE_KEYS.clinicianSession, null);
+  const clinician = readSessionStorage(SESSION_STORAGE_KEYS.clinicianSession, null);
+  if (!clinician) return null;
+
+  const expiresAt = Number(clinician.sessionExpiresAt || 0);
+  if (expiresAt && Date.now() >= expiresAt) {
+    clearClinicianSession();
+    return null;
+  }
+
+  if (!expiresAt) {
+    const migratedSession = {
+      ...clinician,
+      sessionExpiresAt: Date.now() + CLINICIAN_SESSION_DURATION_MS
+    };
+    localStorage.setItem(SESSION_STORAGE_KEYS.clinicianSession, JSON.stringify(migratedSession));
+    sessionStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
+    return migratedSession;
+  }
+
+  return clinician;
 }
 
-function saveClinicianSession(clinician, rememberOnDevice = null) {
-  const existingStorage = getClinicianSessionStorage();
+function saveClinicianSession(clinician) {
+  const existingSession = getClinicianSession();
   localStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
-
-  const targetStorage =
-    rememberOnDevice === null
-      ? existingStorage
-      : rememberOnDevice
-        ? localStorage
-        : sessionStorage;
-
-  saveSessionStorage(SESSION_STORAGE_KEYS.clinicianSession, clinician, targetStorage);
+  const sessionExpiresAt = existingSession?.clinicianId === clinician?.clinicianId
+    ? existingSession.sessionExpiresAt
+    : Date.now() + CLINICIAN_SESSION_DURATION_MS;
+  saveSessionStorage(SESSION_STORAGE_KEYS.clinicianSession, { ...clinician, sessionExpiresAt }, localStorage);
 }
 
 function clearClinicianSession() {
@@ -110,48 +127,59 @@ function getPatientSessionStorage() {
 }
 
 function setActivePatientId(patientId, rememberOnDevice = null) {
-  const existingStorage = getPatientSessionStorage();
+  const existingPatientId = localStorage.getItem(SESSION_STORAGE_KEYS.activePatientId)
+    || sessionStorage.getItem(SESSION_STORAGE_KEYS.activePatientId)
+    || "";
+  const existingExpiresAt = Number(localStorage.getItem(PREFERENCE_STORAGE_KEYS.patientSessionExpiresAt) || 0);
   localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
 
   if (patientId) {
-    const targetStorage =
-      rememberOnDevice === null
-        ? existingStorage
-        : rememberOnDevice
-          ? localStorage
-          : sessionStorage;
-
-    targetStorage.setItem(SESSION_STORAGE_KEYS.activePatientId, patientId);
+    const expiresAt = rememberOnDevice === true
+      ? -1
+      : rememberOnDevice === null && existingPatientId === patientId && (existingExpiresAt === -1 || existingExpiresAt > Date.now())
+        ? existingExpiresAt
+        : Date.now() + PATIENT_SESSION_DURATION_MS;
+    localStorage.setItem(SESSION_STORAGE_KEYS.activePatientId, patientId);
+    localStorage.setItem(PREFERENCE_STORAGE_KEYS.patientSessionExpiresAt, `${expiresAt}`);
   }
 }
 
 function getActivePatientId() {
-  return (
+  const patientId = (
     sessionStorage.getItem(SESSION_STORAGE_KEYS.activePatientId) ||
     localStorage.getItem(SESSION_STORAGE_KEYS.activePatientId) ||
     ""
   );
+  if (!patientId) return "";
+
+  const expiresAt = Number(localStorage.getItem(PREFERENCE_STORAGE_KEYS.patientSessionExpiresAt) || 0);
+  if (expiresAt !== -1 && expiresAt && Date.now() >= expiresAt) {
+    signOutPatientSession();
+    return "";
+  }
+
+  if (!expiresAt) {
+    const legacyExpiration = getRememberedPatientId() === patientId
+      ? -1
+      : Date.now() + PATIENT_SESSION_DURATION_MS;
+    localStorage.setItem(PREFERENCE_STORAGE_KEYS.patientSessionExpiresAt, `${legacyExpiration}`);
+  }
+  localStorage.setItem(SESSION_STORAGE_KEYS.activePatientId, patientId);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
+  return patientId;
 }
 
 function clearActivePatientId() {
   localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientId);
+  localStorage.removeItem(PREFERENCE_STORAGE_KEYS.patientSessionExpiresAt);
 }
 
 function saveActivePatientRecord(record, rememberOnDevice = null) {
-  const existingStorage = getPatientSessionStorage();
   localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
-
-  const targetStorage =
-    rememberOnDevice === null
-      ? existingStorage
-      : rememberOnDevice
-        ? localStorage
-        : sessionStorage;
-
-  saveSessionStorage(SESSION_STORAGE_KEYS.activePatientRecord, record, targetStorage);
+  saveSessionStorage(SESSION_STORAGE_KEYS.activePatientRecord, record, localStorage);
   setActivePatientId(record?.patientId || "", rememberOnDevice);
 }
 
@@ -168,6 +196,11 @@ function getActivePatientRecord() {
 function clearActivePatientRecord() {
   localStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.activePatientRecord);
+}
+
+function signOutPatientSession() {
+  clearActivePatientId();
+  clearActivePatientRecord();
 }
 
 function saveRememberedClinicianEmail(email) {
@@ -203,12 +236,12 @@ async function apiCreateClinicianAccount({ inviteCode, firstName, lastName, emai
   return payload.clinician;
 }
 
-async function apiSignInClinician({ email, password, rememberOnDevice = false }) {
+async function apiSignInClinician({ email, password }) {
   const payload = await apiRequest("/clinician/signin", {
     method: "POST",
     body: JSON.stringify({ email, password })
   });
-  saveClinicianSession(payload.clinician, rememberOnDevice);
+  saveClinicianSession(payload.clinician);
   return payload.clinician;
 }
 
@@ -247,14 +280,60 @@ async function apiFetchClinicianPatients() {
   return payload.patients || [];
 }
 
+async function apiFetchClinicians() {
+  const payload = await apiRequest("/clinicians");
+  return payload.clinicians || [];
+}
+
+async function apiCreatePatientInvitation({ selectedCategories, assignedItems }) {
+  const clinicianId = getCurrentClinicianId();
+  if (!clinicianId) throw new Error("Sign in as a clinician first.");
+  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/patients/invite`, {
+    method: "POST",
+    body: JSON.stringify({ selectedCategories, assignedItems })
+  });
+  return payload.patient;
+}
+
+async function apiActivatePatient({ patientId, password, rememberOnDevice = false }) {
+  const payload = await apiRequest("/patients/activate", {
+    method: "POST",
+    body: JSON.stringify({ patientId, password, date: getTodayIsoDate() })
+  });
+  saveActivePatientRecord(payload.patient, rememberOnDevice);
+  saveRememberedPatientId(rememberOnDevice ? payload.patient.patientId : "");
+  return payload.patient;
+}
+
+async function apiSignInPatient({ patientId, password, rememberOnDevice = false }) {
+  const payload = await apiRequest("/patients/signin", {
+    method: "POST",
+    body: JSON.stringify({ patientId, password, date: getTodayIsoDate() })
+  });
+  saveActivePatientRecord(payload.patient, rememberOnDevice);
+  saveRememberedPatientId(rememberOnDevice ? payload.patient.patientId : "");
+  return payload.patient;
+}
+
+async function apiFetchClinicianPatientRecord(patientId) {
+  const clinicianId = getCurrentClinicianId();
+  if (!clinicianId) {
+    throw new Error("No clinician is signed in.");
+  }
+  const normalized = (patientId || "").trim().toUpperCase();
+  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(normalized)}`);
+  saveActivePatientRecord(payload.patient);
+  return payload.patient;
+}
+
 async function apiFetchPatientRecord(patientId) {
-  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}`);
+  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}?date=${encodeURIComponent(getTodayIsoDate())}`);
   saveActivePatientRecord(payload.patient);
   return payload.patient;
 }
 
 async function apiFetchPatientRecordWithPreference(patientId, rememberOnDevice) {
-  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}`);
+  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}?date=${encodeURIComponent(getTodayIsoDate())}`);
   saveActivePatientRecord(payload.patient, rememberOnDevice);
   return payload.patient;
 }
@@ -284,6 +363,19 @@ async function apiSavePatientPlan({ patientId, selectedCategories, assignedItems
   return payload.patient;
 }
 
+async function apiSaveClinicianNote({ patientId, clinicianNotes }) {
+  const clinicianId = getCurrentClinicianId();
+  const payload = await apiRequest(
+    `/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(patientId)}/notes`,
+    {
+      method: "POST",
+      body: JSON.stringify({ clinicianNotes })
+    }
+  );
+  saveActivePatientRecord(payload.patient);
+  return payload.patient;
+}
+
 async function apiUpdatePatientItemLog({ patientId, itemId, patch, date }) {
   return apiRequest(`/patients/${encodeURIComponent(patientId)}/progress/item`, {
     method: "POST",
@@ -298,14 +390,37 @@ async function apiUpdatePatientItemLog({ patientId, itemId, patch, date }) {
 async function apiCompletePatientSession(patientId) {
   const payload = await apiRequest(`/patients/${encodeURIComponent(patientId)}/progress/complete`, {
     method: "POST",
-    body: JSON.stringify({})
+    body: JSON.stringify({ date: getTodayIsoDate() })
+  });
+  return payload.progress;
+}
+
+async function apiResetPatientDailyProgress(patientId) {
+  const payload = await apiRequest(`/patients/${encodeURIComponent(patientId)}/progress/reset`, {
+    method: "POST",
+    body: JSON.stringify({ date: getTodayIsoDate() })
   });
   return payload.progress;
 }
 
 async function apiFetchPatientTrends(patientId) {
-  const payload = await apiRequest(`/patients/${encodeURIComponent(patientId)}/trends`);
+  const clinicianId = getCurrentClinicianId();
+  const path = clinicianId
+    ? `/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(patientId)}/trends`
+    : `/patients/${encodeURIComponent(patientId)}/trends`;
+  const payload = await apiRequest(path);
   return payload.trends || [];
+}
+
+async function apiFetchPatientAnalytics(patientId) {
+  const clinicianId = getCurrentClinicianId();
+  if (!clinicianId) {
+    throw new Error("Physician sign-in is required to view patient analytics.");
+  }
+  const payload = await apiRequest(
+    `/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(patientId)}/analytics`
+  );
+  return payload.analytics || {};
 }
 
 function getPatientProgress(record = getActivePatientRecord()) {
@@ -321,11 +436,46 @@ function getStreakCount(record = getActivePatientRecord()) {
 }
 
 function hasCompletedToday(record = getActivePatientRecord()) {
-  return getPatientProgress(record).lastCompletedOn === getTodayIsoDate();
+  const progress = getPatientProgress(record);
+  const today = getTodayIsoDate();
+  const todayLog = progress.dailyLogs?.[today] || {};
+  const hasExerciseEntries = Object.keys(todayLog).some((key) => key !== "sessionCompletedAt");
+  return Boolean(todayLog.sessionCompletedAt && hasExerciseEntries);
 }
 
 function getCurrentDayLabel(record = getActivePatientRecord()) {
   return `Day ${getCompletedSessions(record) + 1}`;
+}
+
+function getProgramWeek(record = getActivePatientRecord()) {
+  if (!record) {
+    return 1;
+  }
+  const logDates = Object.keys(getPatientProgress(record).dailyLogs || {}).sort();
+  const startValue = record.createdAt || (logDates[0] ? `${logDates[0]}T12:00:00` : new Date().toISOString());
+  const startDate = new Date(startValue);
+  if (Number.isNaN(startDate.getTime())) {
+    return 1;
+  }
+  const elapsedDays = Math.max(0, Math.floor((Date.now() - startDate.getTime()) / 86400000));
+  return Math.floor(elapsedDays / 7) + 1;
+}
+
+function getCompletedWeekCount(record = getActivePatientRecord()) {
+  const completedWeeks = new Set();
+  Object.entries(getPatientProgress(record).dailyLogs || {}).forEach(([date, dayLog]) => {
+    if (!dayLog?.sessionCompletedAt) {
+      return;
+    }
+    const completedDate = new Date(`${date}T12:00:00`);
+    if (Number.isNaN(completedDate.getTime())) {
+      return;
+    }
+    const dayFromMonday = (completedDate.getDay() + 6) % 7;
+    completedDate.setDate(completedDate.getDate() - dayFromMonday);
+    completedWeeks.add(completedDate.toISOString().slice(0, 10));
+  });
+  return completedWeeks.size;
 }
 
 function getAssignedCategories(record = getActivePatientRecord()) {
@@ -363,7 +513,7 @@ function getDailyItemLog(record = getActivePatientRecord(), date = getTodayIsoDa
 function getPatientDashboard(record = getActivePatientRecord()) {
   return {
     patientId: record?.patientId || "",
-    title: "Assigned hand recovery plan",
+    title: "Hand recovery",
     dayLabel: getCurrentDayLabel(record),
     categories: getAssignedCategories(record),
     groupedItems: getAssignedItemsByCategory(record),

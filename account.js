@@ -32,9 +32,9 @@ if (isDetailsMode) {
   accountSubmitButton.hidden = true;
   inviteCodeField.classList.add("hidden");
   accountTopLink.href = "./select.html";
-  accountTopLink.textContent = "Clinician portal";
+  accountTopLink.textContent = "Home";
   accountSecondaryLink.href = "./select.html";
-  accountSecondaryLink.textContent = "Clinician portal";
+  accountSecondaryLink.textContent = "Home";
 
   firstNameInput.readOnly = true;
   lastNameInput.readOnly = true;
@@ -47,10 +47,10 @@ if (isDetailsMode) {
 } else {
   accountSupportCopy.textContent =
     "Use the clinician invite code to create an account with first name, last name, email, and password.";
-  accountTopLink.href = "./clinician-auth.html";
+  accountTopLink.href = "./index.html";
   accountTopLink.textContent = "Back";
-  accountSecondaryLink.href = "./clinician-auth.html";
-  accountSecondaryLink.textContent = "Clinician access";
+  accountSecondaryLink.href = "./clinician-signin.html";
+  accountSecondaryLink.textContent = "Clinician sign in";
 }
 
 passwordToggleButton.addEventListener("click", () => {

@@ -9,14 +9,14 @@ const sheetContinueButton = document.querySelector("#sheet-continue-button");
 const ROLE_FLOW = {
   clinician: {
     pill: "Clinician",
-    title: "Clinician warning",
-    copy: "Only create or edit plans that have been prescribed or approved for the patient. This app tracks assigned care and does not replace clinical judgment.",
-    href: "./clinician-auth.html"
+    title: "Clinician access",
+    copy: "Create patient IDs, assign hand recovery exercises, and review adherence and symptom trends.",
+    href: "./clinician-signin.html"
   },
   patient: {
     pill: "Patient",
-    title: "Patient warning",
-    copy: "Only complete the exercises and tasks given to you by your treating clinician. Stop and contact them if pain, numbness, swelling, or other symptoms worsen.",
+    title: "Patient access",
+    copy: "Use the patient ID provided by your clinician to activate or sign in to your assigned hand recovery program.",
     href: "./patient-access.html"
   }
 };
@@ -50,7 +50,16 @@ function closeSheet() {
 
 roleButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    openSheet(button.dataset.role);
+    const role = button.dataset.role;
+    if (role === "patient" && getActivePatientId()) {
+      window.location.href = "./progress.html";
+      return;
+    }
+    if (role === "clinician" && getCurrentClinicianId()) {
+      window.location.href = "./select.html";
+      return;
+    }
+    openSheet(role);
   });
 });
 

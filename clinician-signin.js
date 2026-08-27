@@ -3,12 +3,14 @@ const signinEmail = document.querySelector("#signin-email");
 const signinPassword = document.querySelector("#signin-password");
 const signinMessage = document.querySelector("#signin-message");
 const signinPasswordToggle = document.querySelector("#signin-password-toggle");
-const signinRemember = document.querySelector("#signin-remember");
 
 const rememberedClinicianEmail = getRememberedClinicianEmail();
 
-signinRemember.checked = Boolean(rememberedClinicianEmail);
 signinEmail.value = rememberedClinicianEmail;
+
+if (getCurrentClinicianId()) {
+  window.location.replace("./select.html");
+}
 
 signinPasswordToggle.addEventListener("click", () => {
   const shouldShow = signinPassword.type === "password";
@@ -24,15 +26,10 @@ signinForm.addEventListener("submit", async (event) => {
   try {
     await apiSignInClinician({
       email: signinEmail.value.trim(),
-      password: signinPassword.value,
-      rememberOnDevice: signinRemember.checked
+      password: signinPassword.value
     });
 
-    if (signinRemember.checked) {
-      saveRememberedClinicianEmail(signinEmail.value.trim());
-    } else {
-      saveRememberedClinicianEmail("");
-    }
+    saveRememberedClinicianEmail(signinEmail.value.trim());
 
     signinMessage.textContent = "";
     window.location.href = "./select.html";

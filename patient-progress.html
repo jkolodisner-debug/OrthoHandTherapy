@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Online Hand Recovery | Current Progress</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=56" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <a class="nav-link" href="./progress.html">Home</a>
+      <button class="nav-link" id="patient-sign-out" type="button">Sign out</button>
+    </header>
+    <main class="screen screen-centered">
+      <section class="card progress-card patient-progress-card">
+        <p class="eyebrow">Patient progress</p>
+        <h1>Current progress</h1>
+        <p class="support-copy" id="patient-intro">
+          Review your current program week, completed sessions, and clinician note.
+        </p>
+
+        <div class="status-header-card">
+          <span class="stat-label">Patient ID</span>
+          <strong id="patient-code">Not loaded</strong>
+        </div>
+
+        <div class="stat-grid">
+          <article class="stat-box">
+            <span class="stat-label">Current streak</span>
+            <strong id="streak-count">0 days</strong>
+          </article>
+          <article class="stat-box">
+            <span class="stat-label">Sessions done</span>
+            <strong id="completed-count">0</strong>
+          </article>
+          <article class="stat-box week-stat-box">
+            <span class="stat-label">Current program week</span>
+            <strong id="program-week">Week 1</strong>
+          </article>
+          <article class="stat-box week-stat-box">
+            <span class="stat-label">Weeks completed</span>
+            <strong id="completed-weeks">0</strong>
+          </article>
+        </div>
+
+        <section class="progress-list-panel" id="clinician-notes-panel">
+          <div class="progress-list-block">
+            <span class="stat-label">Clinician notes</span>
+            <p class="support-copy" id="clinician-notes-text"></p>
+          </div>
+        </section>
+
+        <a class="primary-button large-button" id="continue-button" href="./today.html">Open daily exercise checklist</a>
+      </section>
+    </main>
+
+    <script src="data.js?v=30"></script>
+    <script src="app-config.js?v=2"></script>
+    <script src="api-client.js?v=32"></script>
+    <script src="progress.js?v=21"></script>
+  </body>
+</html>

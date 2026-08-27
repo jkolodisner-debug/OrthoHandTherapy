@@ -96,6 +96,14 @@ def get_clinician(req: func.HttpRequest) -> func.HttpResponse:
     return json_response({"ok": True, "clinician": clinician})
 
 
+@app.route(route="clinicians", methods=["GET"])
+def list_clinicians(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+    return json_response({"ok": True, "clinicians": store.list_clinicians()})
+
+
 @app.route(route="clinicians/{clinicianId}/reset-password", methods=["POST"])
 def reset_clinician_password(req: func.HttpRequest) -> func.HttpResponse:
     store, error = store_or_error()
@@ -131,6 +139,82 @@ def clinician_patients(req: func.HttpRequest) -> func.HttpResponse:
     return json_response({"ok": True, "patients": patients})
 
 
+@app.route(route="clinicians/{clinicianId}/patients/invite", methods=["POST"])
+def create_patient_invitation(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    clinician_id = (req.route_params.get("clinicianId") or "").strip()
+    payload = request_json(req)
+    selected_categories = payload.get("selectedCategories") or []
+    assigned_items = payload.get("assignedItems") or []
+    if not clinician_id:
+        return error_response("Clinician ID is required.")
+    if not selected_categories or not assigned_items:
+        return error_response("The selected program does not contain exercises.")
+    try:
+        patient = store.enroll_patient(clinician_id, selected_categories, assigned_items)
+    except ValueError as exc:
+        return error_response(str(exc), status_code=400)
+    return json_response({"ok": True, "patient": patient}, status_code=201)
+
+
+@app.route(route="patients/activate", methods=["POST"])
+def activate_patient(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+    payload = request_json(req)
+    patient_id = (payload.get("patientId") or "").strip()
+    password = payload.get("password") or ""
+    if not patient_id or not password:
+        return error_response("Patient ID and password are required.")
+    try:
+        patient = store.activate_patient(patient_id, password, local_date=payload.get("date"))
+    except ValueError as exc:
+        return error_response(str(exc), status_code=409)
+    return json_response({"ok": True, "patient": patient}, status_code=201)
+
+
+@app.route(route="patients/signin", methods=["POST"])
+def patient_signin(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+    payload = request_json(req)
+    patient_id = (payload.get("patientId") or "").strip()
+    password = payload.get("password") or ""
+    if not patient_id or not password:
+        return error_response("Patient ID and password are required.")
+    try:
+        patient = store.sign_in_patient(patient_id, password, local_date=payload.get("date"))
+    except ValueError as exc:
+        return error_response(str(exc), status_code=401)
+    return json_response({"ok": True, "patient": patient})
+
+
+@app.route(route="clinicians/{clinicianId}/patients/{patientId}/notes", methods=["POST"])
+def save_clinician_note(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    clinician_id = (req.route_params.get("clinicianId") or "").strip()
+    patient_id = (req.route_params.get("patientId") or "").strip()
+    clinician_notes = (request_json(req).get("clinicianNotes") or "").strip()
+    if not clinician_id or not patient_id:
+        return error_response("Clinician ID and patient ID are required.")
+    if len(clinician_notes) > 1500:
+        return error_response("The clinician note must be 1,500 characters or fewer.")
+
+    try:
+        patient = store.save_clinician_note(clinician_id, patient_id, clinician_notes)
+    except ValueError as exc:
+        return error_response(str(exc), status_code=404)
+    return json_response({"ok": True, "patient": patient})
+
+
 @app.route(route="patients", methods=["POST"])
 def save_patient_plan(req: func.HttpRequest) -> func.HttpResponse:
     store, error = store_or_error()
@@ -164,6 +248,24 @@ def save_patient_plan(req: func.HttpRequest) -> func.HttpResponse:
     return json_response({"ok": True, "patient": record}, status_code=201)
 
 
+@app.route(route="patients/enroll", methods=["POST"])
+def enroll_patient(req: func.HttpRequest) -> func.HttpResponse:
+    return error_response("Patient IDs must be created from a signed-in clinician account.", status_code=403)
+
+
+@app.route(route="clinicians/{clinicianId}/patients/{patientId}", methods=["GET"])
+def clinician_patient(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+    clinician_id = (req.route_params.get("clinicianId") or "").strip()
+    patient_id = req.route_params.get("patientId") or ""
+    record = store.get_patient_record(patient_id)
+    if not record or record.get("clinicianId") != clinician_id:
+        return error_response("Patient ID is not associated with this clinician account.", status_code=404)
+    return json_response({"ok": True, "patient": record})
+
+
 @app.route(route="patients/{patientId}", methods=["GET"])
 def get_patient(req: func.HttpRequest) -> func.HttpResponse:
     store, error = store_or_error()
@@ -171,7 +273,7 @@ def get_patient(req: func.HttpRequest) -> func.HttpResponse:
         return error
 
     patient_id = req.route_params.get("patientId") or ""
-    record = store.get_patient_record(patient_id)
+    record = store.get_patient_record(patient_id, local_date=req.params.get("date"))
     if not record:
         return error_response("Patient ID not found.", status_code=404)
 
@@ -196,7 +298,10 @@ def update_progress_item(req: func.HttpRequest) -> func.HttpResponse:
     if not isinstance(patch, dict):
         return error_response("Patch must be a JSON object.")
 
-    entries = store.upsert_daily_log(patient_id=patient_id, date=date, item_id=item_id, patch=patch)
+    try:
+        entries = store.upsert_daily_log(patient_id=patient_id, date=date, item_id=item_id, patch=patch)
+    except ValueError as exc:
+        return error_response(str(exc), status_code=409)
     return json_response({"ok": True, "date": date, "entries": entries})
 
 
@@ -210,8 +315,28 @@ def complete_progress(req: func.HttpRequest) -> func.HttpResponse:
     if not patient_id:
         return error_response("Patient ID is required.")
 
+    payload = request_json(req)
     try:
-        progress = store.complete_today_session(patient_id)
+        progress = store.complete_today_session(patient_id, date=payload.get("date"))
+    except ValueError as exc:
+        return error_response(str(exc), status_code=404)
+
+    return json_response({"ok": True, "progress": progress})
+
+
+@app.route(route="patients/{patientId}/progress/reset", methods=["POST"])
+def reset_today_progress(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    patient_id = req.route_params.get("patientId") or ""
+    if not patient_id:
+        return error_response("Patient ID is required.")
+
+    payload = request_json(req)
+    try:
+        progress = store.reset_today_progress(patient_id, date=payload.get("date"))
     except ValueError as exc:
         return error_response(str(exc), status_code=404)
 
@@ -230,3 +355,33 @@ def patient_trends(req: func.HttpRequest) -> func.HttpResponse:
 
     trends = store.get_trend_data(patient_id)
     return json_response({"ok": True, "trends": trends})
+
+
+@app.route(route="clinicians/{clinicianId}/patients/{patientId}/trends", methods=["GET"])
+def clinician_patient_trends(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    clinician_id = (req.route_params.get("clinicianId") or "").strip()
+    patient_id = req.route_params.get("patientId") or ""
+    record = store.get_patient_record(patient_id)
+    if not record or record.get("clinicianId") != clinician_id:
+        return error_response("Patient ID is not associated with this clinician account.", status_code=404)
+
+    return json_response({"ok": True, "trends": store.get_trend_data(patient_id)})
+
+
+@app.route(route="clinicians/{clinicianId}/patients/{patientId}/analytics", methods=["GET"])
+def clinician_patient_analytics(req: func.HttpRequest) -> func.HttpResponse:
+    store, error = store_or_error()
+    if error:
+        return error
+
+    clinician_id = (req.route_params.get("clinicianId") or "").strip()
+    patient_id = req.route_params.get("patientId") or ""
+    record = store.get_patient_record(patient_id)
+    if not record or record.get("clinicianId") != clinician_id:
+        return error_response("Patient ID is not associated with this clinician account.", status_code=404)
+
+    return json_response({"ok": True, "analytics": store.get_patient_analytics(patient_id)})

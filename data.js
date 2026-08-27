@@ -1,186 +1,45 @@
 const CATEGORY_DEFINITIONS = [
   {
     id: 1,
-    key: "mobility-rom",
-    title: "Mobility / Range of Motion",
-    description: "Restore active motion through the wrist, forearm, fingers, and thumb.",
-    lockedNotice: "Only use exercises prescribed or approved by the treating clinician.",
+    key: "wrist-stretches",
+    title: "Wrist Stretches",
+    description: "AAOS carpal tunnel stretches used to reduce wrist and forearm tightness before activity and throughout the day.",
+    lockedNotice: "Assign only exercises selected or approved by the treating clinician or physical therapist.",
     items: [
-      "Wrist flexion/extension AROM",
-      "Wrist radial/ulnar deviation AROM",
-      "Forearm pronation/supination",
-      "Finger flexion/extension AROM",
-      "Thumb opposition",
-      "Thumb radial/palmar abduction",
-      "Finger blocking: DIP",
-      "Finger blocking: PIP",
-      "Composite fist",
-      "Tabletop/intrinsic plus position",
-      "Finger abduction/adduction"
+      { name: "Wrist Extension Stretch", frequency: "5 to 7 days per week", dose: "5 reps, 4x a day • hold 15 seconds" },
+      { name: "Wrist Flexion Stretch", frequency: "5 to 7 days per week", dose: "5 reps, 4x a day • hold 15 seconds" }
     ]
   },
   {
     id: 2,
-    key: "tendon-gliding",
-    title: "Tendon Gliding",
-    description: "Improve tendon excursion and active hand movement patterns.",
-    lockedNotice: "Only use tendon gliding patterns prescribed or approved by the treating clinician.",
+    key: "median-nerve-glides",
+    title: "Median Nerve Glides",
+    description: "Median nerve mobility drills from the AAOS carpal tunnel guide.",
+    lockedNotice: "Use these only as prescribed and stop if numbness or tingling becomes uncomfortable.",
     items: [
-      "Straight hand",
-      "Hook fist",
-      "Straight fist",
-      "Full fist",
-      "Tabletop fist",
-      "Isolated FDS glide",
-      "Isolated FDP glide",
-      "Thumb tendon glide",
-      "Differential tendon gliding sequence"
+      { name: "Median Nerve Glides", frequency: "6 to 7 days per week", dose: "10 to 15 reps a day • hold each position 3 to 7 seconds" }
     ]
   },
   {
     id: 3,
-    key: "edema-pain",
-    title: "Edema / Pain Control",
-    description: "Track symptoms and reinforce swelling or irritability management tasks.",
-    lockedNotice: "Use only clinician-approved symptom management tasks and devices.",
+    key: "tendon-glides",
+    title: "Tendon Glides",
+    description: "Tendon glide sequences that support joint motion and hand function in carpal tunnel recovery.",
+    lockedNotice: "Progress repetitions only as tolerated and only within the clinician-approved plan.",
     items: [
-      "Hand elevation reminder",
-      "Active finger pumping",
-      "Gentle wrist/hand AROM for swelling",
-      "Compression glove/sleeve education",
-      "Retrograde massage reminder, only if prescribed",
-      "Ice/heat reminder, only if prescribed",
-      "Pain score before exercise",
-      "Pain score after exercise",
-      "Swelling/tightness check"
-    ]
-  },
-  {
-    id: 4,
-    key: "nerve-mobility",
-    title: "Nerve Mobility",
-    description: "Use prescribed neural mobility carefully and stop if symptoms worsen.",
-    lockedNotice: "Nerve glides stay locked unless the clinician enables them.",
-    items: [
-      "Median nerve glide",
-      "Ulnar nerve glide",
-      "Radial nerve glide",
-      "Cervical/shoulder positioning reminder if prescribed"
-    ]
-  },
-  {
-    id: 5,
-    key: "strengthening",
-    title: "Strengthening",
-    description: "Rebuild grip, pinch, wrist control, and functional load tolerance.",
-    lockedNotice: "Strengthening stays locked unless the clinician enables it.",
-    items: [
-      "Grip strengthening",
-      "Pinch strengthening",
-      "Wrist flexion strengthening",
-      "Wrist extension strengthening",
-      "Radial/ulnar deviation strengthening",
-      "Pronation/supination strengthening",
-      "Intrinsic hand strengthening",
-      "Rubber band finger extension",
-      "Putty squeeze",
-      "Putty pinch",
-      "Putty roll",
-      "Putty finger spread"
-    ]
-  },
-  {
-    id: 6,
-    key: "dexterity-fine-motor",
-    title: "Dexterity / Fine Motor Function",
-    description: "Practice fine motor control, coordination, and task-specific hand use.",
-    lockedNotice: "Choose tasks that match the current healing stage and functional goals.",
-    items: [
-      "Coin pickup",
-      "Pegboard task",
-      "Buttoning practice",
-      "Zipper practice",
-      "Handwriting tolerance",
-      "Typing tolerance",
-      "Object translation palm-to-fingertips",
-      "Small object manipulation",
-      "Card flipping",
-      "Key turning simulation"
-    ]
-  },
-  {
-    id: 7,
-    key: "splint-brace",
-    title: "Splint / Brace Adherence",
-    description: "Support wear schedule, skin checks, and fit concerns.",
-    lockedNotice: "Brace and splint instructions should come directly from the clinician.",
-    items: [
-      "Wear splint/brace as prescribed",
-      "Remove only when instructed",
-      "Skin check",
-      "Strap pressure check",
-      "Redness check",
-      "Numbness/tingling check",
-      "Clean splint/brace reminder",
-      "Document wear time",
-      "Report poor fit or new pressure areas"
-    ]
-  },
-  {
-    id: 8,
-    key: "postoperative-protection",
-    title: "Postoperative Protection / Precautions",
-    description: "Reinforce restrictions, wound monitoring, and protocol-based progression.",
-    lockedNotice: "Post-op precautions and progression stay locked unless clinician-enabled.",
-    items: [
-      "Weight-bearing restriction reminder",
-      "Lifting restriction reminder",
-      "No forceful gripping reminder",
-      "No passive stretching unless prescribed",
-      "Wound check reminder",
-      "Keep incision dry reminder, if applicable",
-      "Follow protocol phase reminder",
-      "Surgeon/therapist-defined progression checkpoint",
-      "Red flag symptom checklist"
-    ]
-  },
-  {
-    id: 9,
-    key: "functional-goals",
-    title: "Functional Goals",
-    description: "Translate the plan into real daily tasks and priorities.",
-    lockedNotice: "Functional tasks should reflect the clinician-approved phase and restrictions.",
-    items: [
-      "Dressing",
-      "Bathing/grooming",
-      "Cooking/meal preparation",
-      "Driving tolerance",
-      "Work task practice",
-      "School/computer use",
-      "Childcare task practice",
-      "Sports/hobby-specific task",
-      "Carrying light objects, if allowed",
-      "Opening containers, if allowed"
+      { name: "Tendon Glides Series A", frequency: "5 to 7 days per week", dose: "5 to 10 reps, 2 to 3x a day • hold each position 3 seconds" },
+      { name: "Tendon Glides Series B", frequency: "5 to 7 days per week", dose: "5 to 10 reps, 2 to 3x a day • hold each position 3 seconds" }
     ]
   }
 ];
 
-const LOCKED_CATEGORY_KEYS = new Set([
-  "nerve-mobility",
-  "strengthening",
-  "postoperative-protection"
-]);
-
-const GLOBAL_SAFETY_RULES = [
-  "This app tracks exercises and precautions prescribed or approved by the treating clinician. It does not provide medical advice.",
-  "Stop and contact the clinician for increasing pain, new numbness or tingling, color change, wound drainage, fever, sudden swelling, or loss of motion."
-];
+const LOCKED_CATEGORY_KEYS = new Set([]);
 
 const STORAGE_KEYS = {
-  patients: "orthoMotionPatients",
-  activePatientId: "orthoMotionActivePatientId",
-  clinicianProfile: "orthoMotionClinicianProfile",
-  clinicianDraft: "orthoMotionClinicianDraft"
+  patients: "orthoHandRecoveryPatients",
+  activePatientId: "orthoHandRecoveryActivePatientId",
+  clinicianProfile: "orthoHandRecoveryClinicianProfile",
+  clinicianDraft: "orthoHandRecoveryClinicianDraft"
 };
 
 function slugify(value) {
@@ -201,62 +60,141 @@ function parseDailyCount(value) {
   return Number.isFinite(count) && count > 0 ? count : null;
 }
 
+function parseWeeklyFrequency(value) {
+  const text = `${value || ""}`.trim().toLowerCase();
+  if (text === "daily") {
+    return { minimum: 7, maximum: 7 };
+  }
+
+  const range = text.match(/(\d+)\s*(?:-|to)\s*(\d+)\s*days?\s*per\s*week/);
+  if (range) {
+    return { minimum: Number(range[1]), maximum: Number(range[2]) };
+  }
+
+  const exact = text.match(/(\d+)\s*days?\s*per\s*week/);
+  if (exact) {
+    const days = Number(exact[1]);
+    return { minimum: days, maximum: days };
+  }
+
+  return { minimum: 1, maximum: 1 };
+}
+
+const HOW_TO_BY_EXERCISE_ID = {
+  "wrist-stretches-wrist-extension-stretch": {
+    steps: [
+      "Straighten your arm and bend your wrist back as if signaling someone to stop.",
+      "Use your opposite hand to apply gentle pressure across the palm and pull it toward you until you feel a stretch on the inside of your forearm.",
+      "Hold the stretch for 15 seconds.",
+      "Repeat 5 times, then perform the stretch on the other arm."
+    ],
+    tip: "Do not lock your elbow."
+  },
+  "wrist-stretches-wrist-flexion-stretch": {
+    steps: [
+      "Straighten your arm with your palm facing down and bend your wrist so your fingers point down.",
+      "Gently pull your hand toward your body until you feel a stretch on the outside of your forearm.",
+      "Hold the stretch for 15 seconds.",
+      "Repeat 5 times, then perform the stretch on the other arm."
+    ],
+    tip: "Do not lock your elbow. Stop if numbness becomes uncomfortable."
+  },
+  "median-nerve-glides-median-nerve-glides": {
+    steps: [
+      "Make a fist with your thumb outside your fingers.",
+      "Extend your fingers while keeping your thumb close to the side of your hand.",
+      "Keep your fingers straight and extend your wrist backward.",
+      "Keep your fingers and wrist in position and extend your thumb.",
+      "Keep your fingers, wrist, and thumb extended and turn your forearm palm up.",
+      "Keep everything extended and use your other hand to gently stretch the thumb."
+    ],
+    tip: "Do not put too much pressure on your thumb in the final position."
+  },
+  "tendon-glides-tendon-glides-series-a": {
+    steps: [
+      "With your hand in front of you and your wrist straight, fully straighten all of your fingers.",
+      "Bend the tips of your fingers into the hook position with your knuckles pointing up.",
+      "Make a tight fist with your thumb over your fingers."
+    ],
+    tip: "Proceed through the sequence in order and hold each position for 3 seconds."
+  },
+  "tendon-glides-tendon-glides-series-b": {
+    steps: [
+      "With your hand in front of you and your wrist straight, fully straighten all of your fingers.",
+      "Make a tabletop with your fingers by bending at your bottom knuckle while keeping the fingers straight.",
+      "Bend your fingers at the middle joint, touching your fingers to your palm."
+    ],
+    tip: "These movements may cause a gentle pulling sensation, but should not increase pain."
+  }
+};
+
+function getWeekDates(referenceDate = new Date()) {
+  const date = new Date(referenceDate);
+  const dayFromMonday = (date.getDay() + 6) % 7;
+  date.setHours(12, 0, 0, 0);
+  date.setDate(date.getDate() - dayFromMonday);
+
+  return Array.from({ length: 7 }, (_, offset) => {
+    const current = new Date(date);
+    current.setDate(date.getDate() + offset);
+    const year = current.getFullYear();
+    const month = `${current.getMonth() + 1}`.padStart(2, "0");
+    const day = `${current.getDate()}`.padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  });
+}
+
+function getWeeklyExerciseCompletion(record, itemId) {
+  const logs = record?.progress?.dailyLogs || {};
+  return getWeekDates().filter((date) => {
+    const entry = logs[date]?.[itemId] || {};
+    return Boolean(entry.patient_checkoff);
+  }).length;
+}
+
 function makeLibraryItem(category, name) {
+  const definition = typeof name === "string" ? { name } : name;
+  name = definition.name;
   const lowerName = name.toLowerCase();
   const requiresPrescription =
-    category.key === "nerve-mobility" ||
-    category.key === "strengthening" ||
-    lowerName.includes("only if prescribed") ||
-    lowerName.includes("if applicable") ||
-    lowerName.includes("if allowed") ||
-    lowerName.includes("progression checkpoint");
+    category.key === "median-nerve-glides" ||
+    lowerName.includes("nerve glide");
 
   const contraindicationWarning =
-    category.key === "nerve-mobility"
-      ? "Stop if symptoms worsen, become sharp, or cause persistent numbness or tingling."
-      : category.key === "postoperative-protection"
-        ? "Do not progress beyond the prescribed phase or violate surgical precautions."
-        : category.key === "strengthening"
-          ? "Do not add resistance beyond the clinician-approved level."
-          : "Use only within the clinician-approved plan and healing phase.";
+    category.key === "median-nerve-glides"
+      ? "Stop if symptoms worsen, become sharp, or create persistent numbness or tingling."
+      : "Use only within the clinician-approved hand recovery plan.";
 
   const painStopRule =
-    category.key === "edema-pain"
-      ? "Pause and notify the clinician if symptoms escalate instead of settling after the task."
-      : "Stop if pain meaningfully increases, sharp symptoms appear, or motion quality worsens.";
+    "Stop and contact the doctor or physical therapist if pain or numbness increases while exercising.";
 
-  const defaultFrequency =
-    category.key === "splint-brace" || category.key === "postoperative-protection"
-      ? "1 required daily"
-      : category.key === "functional-goals"
-        ? "1 required daily"
-        : "2 required daily";
-
-  const defaultDose =
-    category.key === "edema-pain"
-      ? "2-5 minutes"
-      : category.key === "functional-goals"
-        ? "5-10 minutes"
-        : "1-2 sets of 5-10 reps";
+  const defaultFrequency = definition.frequency || "As assigned";
+  const defaultDose = definition.dose || "As assigned";
+  const itemId = `${category.key}-${slugify(name)}`;
+  const howTo = HOW_TO_BY_EXERCISE_ID[itemId] || { steps: [], tip: "" };
 
   return {
-    id: `${category.key}-${slugify(name)}`,
+    id: itemId,
     category: category.title,
     categoryKey: category.key,
     name,
-    patient_friendly_description: `${name} is included here as a clinician-selected tracking item for hand recovery.`,
+    patient_friendly_description: `${name} is an AAOS carpal tunnel exercise selected by your clinician or physical therapist.`,
     default_frequency: defaultFrequency,
     default_sets_reps_duration: defaultDose,
+    image_path: "",
+    how_to_steps: howTo.steps,
+    how_to_tip: howTo.tip,
     daily_target_count: 1,
     requires_prescription: requiresPrescription,
     contraindication_warning: contraindicationWarning,
     pain_stop_rule: painStopRule,
-    progression_notes: "Advance only when approved by the treating clinician.",
+    progression_notes: "Continue only for the duration and frequency approved by the treating clinician or physical therapist.",
     therapist_notes: "",
     patient_checkoff: false,
     adherence_timestamp: "",
     pain_before: "",
     pain_after: "",
+    stiffness_after: "",
     swelling_response: "",
     symptom_notes: ""
   };
@@ -426,12 +364,10 @@ function normalizePatientId(value) {
 function generatePatientId() {
   const store = getPatientsStore();
   let patientId = "";
+  const prefix = "HND";
 
   do {
-    patientId = `HND-${Math.random().toString(36).slice(2, 6).toUpperCase()}${Math.random()
-      .toString(36)
-      .slice(2, 4)
-      .toUpperCase()}`;
+    patientId = `${prefix}-${Math.random().toString(36).slice(2, 7).toUpperCase().padEnd(5, "X")}`;
   } while (store[patientId]);
 
   return patientId;
@@ -505,6 +441,7 @@ function saveClinicianPlan({ patientId, selectedCategories, assignedItems, clini
     adherence_timestamp: "",
     pain_before: item.pain_before || "",
     pain_after: item.pain_after || "",
+    stiffness_after: item.stiffness_after || "",
     swelling_response: item.swelling_response || "",
     symptom_notes: item.symptom_notes || ""
   }));
@@ -698,6 +635,7 @@ function summarizeDayMetrics(dayLog, totalItems) {
   const checkedCount = entries.filter(([, value]) => value.patient_checkoff).length;
   const painBeforeValues = entries.map(([, value]) => Number(value.pain_before)).filter((value) => !Number.isNaN(value));
   const painAfterValues = entries.map(([, value]) => Number(value.pain_after)).filter((value) => !Number.isNaN(value));
+  const stiffnessValues = entries.map(([, value]) => Number(value.stiffness_after)).filter((value) => !Number.isNaN(value));
 
   return {
     completionPercent: totalItems ? Math.round((checkedCount / totalItems) * 100) : 0,
@@ -706,6 +644,9 @@ function summarizeDayMetrics(dayLog, totalItems) {
       : "",
     avgPainAfter: painAfterValues.length
       ? (painAfterValues.reduce((sum, value) => sum + value, 0) / painAfterValues.length).toFixed(1)
+      : "",
+    avgStiffness: stiffnessValues.length
+      ? (stiffnessValues.reduce((sum, value) => sum + value, 0) / stiffnessValues.length).toFixed(1)
       : "",
     checkedCount
   };

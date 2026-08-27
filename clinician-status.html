@@ -6,25 +6,25 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>OrthoHandTherapyBeta | Clinician Status</title>
+    <title>Online Hand Recovery | Clinician Status</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=12" />
+    <link rel="stylesheet" href="styles.css?v=56" />
   </head>
   <body>
     <header class="top-nav">
-      <a class="nav-link" href="./select.html">Clinician portal</a>
+      <a class="nav-link" href="./select.html">Home</a>
     </header>
     <main class="screen screen-centered">
       <section class="card progress-card">
         <p class="eyebrow">Status tracking</p>
         <h1>Patient progress overview</h1>
         <p class="support-copy" id="status-subtitle">
-          Enter a patient ID from the clinician portal to track progress and edit the plan.
+          Review adherence and symptom trends for this patient.
         </p>
 
         <div class="status-header-card" id="status-header-card">
@@ -45,32 +45,100 @@
 
         <section class="progress-list-panel">
           <div class="progress-list-block">
-            <span class="stat-label">7-day adherence</span>
-            <div class="chart-list" id="completion-chart"></div>
-          </div>
-          <div class="progress-list-block">
-            <span class="stat-label">Pain trend</span>
-            <div class="chart-list" id="pain-chart"></div>
+            <span class="stat-label">Stiffness trend</span>
+            <div class="chart-list" id="stiffness-chart"></div>
           </div>
         </section>
 
-        <section class="progress-list-panel">
-          <div class="progress-list-block">
-            <span class="stat-label">Assigned plan snapshot</span>
-            <ul class="progress-list" id="status-plan-list"></ul>
+        <section class="analytics-section">
+          <div class="analytics-heading">
+            <div>
+              <span class="stat-label">Patient-reported outcome</span>
+              <h2>Pain analytics</h2>
+            </div>
+            <span class="analytics-note">Exploratory trend; not a clinical diagnosis</span>
           </div>
+          <article class="trend-summary-card">
+            <strong id="pain-trend-direction">Not enough pain reports yet</strong>
+            <p id="pain-trend-copy">At least three daily reports are needed for R² and p-value reporting.</p>
+            <div class="trend-stat-row">
+              <span>Slope <strong id="pain-slope">—</strong></span>
+              <span>R² <strong id="pain-r-squared">—</strong></span>
+              <span>p-value <strong id="pain-p-value">—</strong></span>
+              <span>Daily reports <strong id="pain-sample-size">0</strong></span>
+            </div>
+          </article>
+          <div class="analytics-grid">
+            <article class="analytics-card">
+              <span class="stat-label">Pain reported by day</span>
+              <div class="chart-list analytics-chart" id="daily-pain-chart"></div>
+              <p class="empty-analytics hidden" id="daily-pain-empty">No signed-off pain reports yet.</p>
+            </article>
+            <article class="analytics-card">
+              <span class="stat-label">Average pain by month</span>
+              <div class="chart-list analytics-chart" id="monthly-pain-chart"></div>
+              <p class="empty-analytics hidden" id="monthly-pain-empty">Monthly bars appear after pain is reported.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="analytics-section">
+          <div class="analytics-heading">
+            <div>
+              <span class="stat-label">Program participation</span>
+              <h2>Weekly adherence</h2>
+            </div>
+          </div>
+          <div class="stat-grid adherence-stat-grid">
+            <article class="stat-box">
+              <span class="stat-label">This week</span>
+              <strong id="adherence-current-week">0 of 0 days</strong>
+            </article>
+            <article class="stat-box">
+              <span class="stat-label">Overall adherence</span>
+              <strong id="adherence-percent">—</strong>
+            </article>
+            <article class="stat-box adherence-success-box">
+              <span class="stat-label">Weeks meeting goal</span>
+              <strong id="adherence-weeks-met">0</strong>
+            </article>
+            <article class="stat-box adherence-warning-box">
+              <span class="stat-label">Weeks below goal</span>
+              <strong id="adherence-weeks-below">0</strong>
+            </article>
+          </div>
+          <p class="support-copy adherence-explanation" id="adherence-explanation">
+            Weekly adherence is measured against the minimum recommended frequency; partial enrollment weeks are excluded.
+          </p>
+        </section>
+
+        <section class="analytics-section clinician-note-section">
+          <div class="analytics-heading">
+            <div>
+              <span class="stat-label">Patient communication</span>
+              <h2>Clinician note</h2>
+            </div>
+          </div>
+          <form id="clinician-note-form">
+            <label class="builder-field">
+              <span>Note shown to this patient</span>
+              <textarea id="clinician-note-text" rows="4" maxlength="1500" placeholder="Add a reminder or general guidance for this patient."></textarea>
+            </label>
+            <button class="primary-button large-button" id="save-clinician-note" type="submit">Save note</button>
+            <p class="completion-message" id="clinician-note-message" aria-live="polite"></p>
+          </form>
         </section>
 
         <div class="portal-grid compact-grid">
-          <a class="primary-button large-button" href="./category-select.html" id="edit-plan-button">Edit patient plan</a>
-          <a class="nav-link large-button" href="./select.html">Clinician portal</a>
+          <a class="nav-link large-button" href="./select.html">Home</a>
           <a class="nav-link large-button" href="./index.html">Return home</a>
         </div>
       </section>
     </main>
 
-    <script src="data.js?v=15"></script>
-    <script src="api-client.js?v=15"></script>
-    <script src="clinician-status.js?v=15"></script>
+    <script src="data.js?v=30"></script>
+    <script src="app-config.js?v=2"></script>
+    <script src="api-client.js?v=32"></script>
+    <script src="clinician-status.js?v=20"></script>
   </body>
 </html>

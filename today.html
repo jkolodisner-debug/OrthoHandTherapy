@@ -6,113 +6,148 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>OrthoHandTherapyBeta | Today's Hand Plan</title>
+    <title>Online Hand Recovery | Today's Plan</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=12" />
+    <link rel="stylesheet" href="styles.css?v=56" />
   </head>
   <body>
     <header class="top-nav">
       <a class="nav-link" href="./progress.html">Back</a>
-      <a class="nav-link" href="./index.html">Home</a>
+      <button class="nav-link" id="patient-sign-out" type="button">Sign out</button>
     </header>
     <main class="screen">
       <section class="card session-card">
         <div class="session-header">
           <div>
             <p class="eyebrow">Daily checklist</p>
-            <h1><span id="plan-name">Assigned hand</span> recovery</h1>
+            <h1><span id="plan-name">Assigned hand recovery</span></h1>
             <p class="support-copy session-subcopy">Patient ID: <span id="patient-code">Not loaded</span></p>
           </div>
           <span class="day-pill" id="day-label">Day 1</span>
         </div>
 
-        <div class="focus-card">
-          <span class="stat-label">Reminder</span>
-          <p id="focus-text"></p>
-        </div>
-
-        <div class="safety-banner compact-safety">
-          <strong>Safety</strong>
-          <ul class="safety-list" id="today-safety-list"></ul>
-        </div>
-
         <div class="exercise-list" id="exercise-list"></div>
 
+        <div class="session-completion-progress">
+          <div class="session-completion-heading">
+            <strong>Today’s exercise progress</strong>
+            <span id="session-completion-count">0 of 0 exercises completed</span>
+          </div>
+          <div class="session-completion-track" id="session-completion-track" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="0">
+            <span class="session-completion-fill" id="session-completion-fill"></span>
+          </div>
+        </div>
+
         <button class="primary-button large-button" id="finish-button" type="button">Complete today's session</button>
+        <button class="nav-link large-button" id="reset-day-button" type="button">Reset today’s progress</button>
         <p class="completion-message" id="completion-message"></p>
+        <p class="exercise-source-note" id="exercise-source-note"></p>
       </section>
     </main>
 
     <div class="completion-overlay hidden" id="completion-overlay" aria-live="polite">
       <div class="completion-popup">
-        <span class="completion-badge">Session Complete</span>
-        <h2>Great work!</h2>
+        <span class="completion-badge" id="completion-overlay-badge">Session Complete</span>
+        <h2 id="completion-overlay-title">Great work!</h2>
         <p id="overlay-streak-message">You have an 0 day streak!</p>
+        <a class="primary-button popup-button hidden" id="completion-return-button" href="./progress.html">Return to patient portal</a>
       </div>
     </div>
 
     <div class="completion-overlay hidden" id="partial-overlay" aria-live="polite">
       <div class="completion-popup partial-popup">
-        <span class="completion-badge">Continue Later</span>
         <h2>You have not completed all of your exercises.</h2>
-        <p>Would you like to continue later?</p>
+        <p>Choose whether to return to the checklist now or save your completed exercises and come back later.</p>
         <div class="popup-actions">
-          <button class="nav-link popup-button" id="resume-button" type="button">Keep going</button>
-          <button class="primary-button popup-button" id="later-button" type="button">Continue later</button>
+          <button class="primary-button popup-button" id="resume-button" type="button">Continue exercises now</button>
+          <button class="nav-link popup-button" id="later-button" type="button">Save and finish later</button>
         </div>
+      </div>
+    </div>
+
+    <div class="completion-overlay hidden" id="reset-day-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-day-title">
+      <div class="completion-popup partial-popup">
+        <h2 id="reset-day-title">Reset today’s progress?</h2>
+        <p>Warning: You will lose all exercise progress and symptom ratings from today.</p>
+        <div class="popup-actions">
+          <button class="nav-link popup-button" id="cancel-reset-day" type="button">Keep today’s progress</button>
+          <button class="primary-button popup-button" id="confirm-reset-day" type="button">Yes, reset today</button>
+        </div>
+        <p class="completion-message" id="reset-day-message"></p>
       </div>
     </div>
 
     <template id="exercise-template">
       <div class="exercise-card-shell">
-        <label class="exercise-item">
+        <div class="exercise-item">
           <span class="exercise-content">
             <strong class="exercise-title"></strong>
             <span class="exercise-dose"></span>
-            <span class="exercise-progress-text"></span>
           </span>
-        </label>
-        <div class="completion-chip-row"></div>
-        <button class="exercise-toggle" type="button">View details</button>
-        <div class="exercise-detail-panel hidden">
-          <p class="exercise-tip"></p>
-          <p class="warning-copy exercise-warning"></p>
-          <div class="detail-grid">
-            <label class="builder-field">
-              <span>Pain before</span>
-              <input class="pain-before-input" type="number" min="0" max="10" placeholder="0-10" />
-            </label>
-            <label class="builder-field">
-              <span>Pain after</span>
-              <input class="pain-after-input" type="number" min="0" max="10" placeholder="0-10" />
-            </label>
-          </div>
-          <label class="builder-field">
-            <span>Swelling response</span>
-            <select class="swelling-input">
-              <option value="">Select one</option>
-              <option value="no-change">No change</option>
-              <option value="better">Better</option>
-              <option value="more-swollen">More swollen</option>
-              <option value="more-tight">More tight</option>
-            </select>
-          </label>
-          <label class="builder-field">
-            <span>Symptom notes</span>
-            <textarea class="symptom-notes-input" rows="2" placeholder="Add numbness, tingling, wound concerns, or anything to report."></textarea>
-          </label>
-          <p class="exercise-link-placeholder">Insert how-to links here for YouTube videos.</p>
+          <button class="exercise-picture-hint exercise-preview-button" type="button" aria-label="View exercise how-to">How-to</button>
         </div>
+        <div class="weekly-progress-block">
+          <div class="weekly-progress-heading">
+            <span class="exercise-progress-text"></span>
+            <span class="weekly-bonus-label"></span>
+          </div>
+          <div class="weekly-progress-row">
+            <div class="weekly-progress-track" role="progressbar" aria-valuemin="0">
+              <span class="weekly-progress-fill"></span>
+            </div>
+            <span class="weekly-bonus-step" aria-hidden="true"></span>
+          </div>
+        </div>
+        <button class="exercise-completed-button" type="button" aria-pressed="false">
+          <span class="set-progress-fill" aria-hidden="true"></span>
+          <span class="set-progress-label">Complete set</span>
+        </button>
       </div>
     </template>
 
-    <script src="data.js?v=13"></script>
-    <script src="api-client.js?v=13"></script>
-    <script src="today.js?v=13"></script>
+    <div class="rating-overlay hidden" id="pain-rating-overlay" role="dialog" aria-modal="true" aria-labelledby="pain-rating-title">
+      <section class="rating-popup">
+        <span class="completion-badge">Step 1 of 2</span>
+        <h2 id="pain-rating-title">Rate your pain</h2>
+        <p>How much pain do you have after completing today’s exercises?</p>
+        <div class="rating-scale" id="pain-rating-scale" aria-label="Pain rating out of 10"></div>
+        <button class="primary-button rating-continue" id="pain-rating-continue" type="button">Continue</button>
+      </section>
+    </div>
+
+    <div class="rating-overlay hidden" id="stiffness-rating-overlay" role="dialog" aria-modal="true" aria-labelledby="stiffness-rating-title">
+      <section class="rating-popup">
+        <span class="completion-badge">Step 2 of 2</span>
+        <h2 id="stiffness-rating-title">Rate your stiffness</h2>
+        <p>How stiff do you feel after completing today’s exercises?</p>
+        <div class="rating-scale" id="stiffness-rating-scale" aria-label="Stiffness rating out of 10"></div>
+        <button class="primary-button rating-continue" id="stiffness-rating-continue" type="button">Submit ratings</button>
+      </section>
+    </div>
+
+    <div class="exercise-image-overlay hidden" id="exercise-image-overlay" role="dialog" aria-modal="true" aria-labelledby="exercise-image-title">
+      <div class="exercise-image-popup">
+        <button class="exercise-image-close" id="exercise-image-close" type="button" aria-label="Close exercise picture">×</button>
+        <p class="eyebrow">Exercise how-to</p>
+        <h2 id="exercise-image-title"></h2>
+        <p class="exercise-image-dose" id="exercise-image-dose"></p>
+        <img id="exercise-image" alt="" />
+        <section class="exercise-how-to-copy">
+          <h3>How to do it</h3>
+          <ol id="exercise-how-to-list"></ol>
+          <p class="exercise-how-to-tip hidden" id="exercise-how-to-tip"></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="data.js?v=30"></script>
+    <script src="app-config.js?v=2"></script>
+    <script src="api-client.js?v=32"></script>
+    <script src="today.js?v=32"></script>
   </body>
 </html>

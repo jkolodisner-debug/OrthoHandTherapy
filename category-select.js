@@ -1,6 +1,5 @@
 const categoryOptions = document.querySelector("#category-options");
 const categoryOptionTemplate = document.querySelector("#category-option-template");
-const safetyList = document.querySelector("#safety-list");
 const activePatientLabel = document.querySelector("#active-patient-label");
 const builderMessage = document.querySelector("#builder-message");
 const continueButton = document.querySelector("#continue-button");
@@ -50,12 +49,6 @@ function renderCategoryOptions() {
     categoryOptions.appendChild(option);
   });
 }
-
-GLOBAL_SAFETY_RULES.forEach((rule) => {
-  const item = document.createElement("li");
-  item.textContent = rule;
-  safetyList.appendChild(item);
-});
 
 continueButton.addEventListener("click", (event) => {
   if (selectedCategoryIds.size === 0) {

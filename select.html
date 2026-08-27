@@ -6,42 +6,43 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>OrthoHandTherapyBeta | Clinician Portal</title>
+    <title>Online Hand Recovery | Clinician Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=16" />
+    <link rel="stylesheet" href="styles.css?v=56" />
   </head>
   <body>
-    <header class="top-nav">
-      <a class="nav-link" href="./index.html">Home</a>
-    </header>
     <main class="screen screen-centered">
-      <section class="card builder-card">
+      <section class="card builder-card clinician-portal-card">
         <p class="eyebrow">Clinician portal</p>
-        <h1>Manage patient plans</h1>
+        <h1>Track patient status</h1>
         <p class="support-copy">
-          Start a new patient plan, open a saved patient ID for status tracking, or review the saved patient roster on this device.
+          Create patient access for a hand recovery program or review patient status.
         </p>
 
         <div class="portal-grid">
           <article class="portal-card">
-            <span class="stat-label">New patient</span>
-            <strong>Create new patient plan</strong>
-            <p class="support-copy">
-              Begin Step 1, choose the treatment categories, then continue to exercise-level settings in Step 2.
-            </p>
-            <a class="primary-button inline-button" id="new-patient-link" href="./category-select.html">Create new patient plan</a>
+            <span class="stat-label">Create patient access</span>
+            <form class="auth-form" id="create-patient-form">
+              <button class="primary-button inline-button" type="submit">Create patient ID</button>
+            </form>
+            <div class="created-patient-access hidden" id="created-patient-access" aria-live="polite">
+              <span class="stat-label">Give this ID to the patient</span>
+              <strong class="new-patient-id" id="created-patient-id"></strong>
+              <p class="support-copy" id="created-patient-program"></p>
+            </div>
+            <p class="completion-message" id="create-patient-message"></p>
           </article>
           <article class="portal-card">
             <span class="stat-label">Track status</span>
             <form class="inline-form" id="track-patient-form">
               <label class="builder-field">
                 <span>Enter patient ID to track status</span>
-                <input id="track-patient-id" type="text" placeholder="HND-AB12CD" />
+                <input id="track-patient-id" type="text" placeholder="HND-XXXXX" />
               </label>
               <button class="primary-button inline-button" type="submit">Open status tracking</button>
             </form>
@@ -49,15 +50,17 @@
           </article>
         </div>
 
-        <div class="portal-grid compact-grid">
-          <a class="nav-link large-button" href="./patients.html">See all patient IDs</a>
+        <div class="portal-grid compact-grid clinician-actions-grid">
+          <a class="nav-link large-button" href="./patients.html">See associated patients</a>
           <a class="nav-link large-button" href="./account.html?mode=details">Account details</a>
+          <button class="nav-link large-button" id="clinician-sign-out" type="button">Sign out</button>
         </div>
       </section>
     </main>
 
-    <script src="data.js?v=16"></script>
-    <script src="api-client.js?v=16"></script>
-    <script src="select.js?v=16"></script>
+    <script src="data.js?v=30"></script>
+    <script src="app-config.js?v=2"></script>
+    <script src="api-client.js?v=32"></script>
+    <script src="select.js?v=20"></script>
   </body>
 </html>
