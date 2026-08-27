@@ -208,6 +208,11 @@ class TableBackedAppStore:
         self.progress_table = os.getenv("PROGRESS_TABLE", "ProgressLogs")
         self.clinician_invite_code = os.getenv("CLINICIAN_INVITE_CODE", "").strip()
         self.reset_password_ttl_minutes = max(5, int(os.getenv("RESET_PASSWORD_TTL_MINUTES", "30") or 30))
+        self.admin_clinician_emails = {
+            normalize_email(email)
+            for email in (os.getenv("ADMIN_CLINICIAN_EMAILS", "") or "").split(",")
+            if normalize_email(email)
+        }
         if not self.clinician_invite_code:
             raise RuntimeError("Missing CLINICIAN_INVITE_CODE environment variable.")
         self._ensure_tables()
@@ -300,6 +305,17 @@ class TableBackedAppStore:
             return None
 
         return self._serialize_clinician(entity)
+
+    def is_admin_clinician(self, clinician_id):
+        if not clinician_id:
+            return False
+
+        try:
+            entity = self._clinicians().get_entity("CLINICIAN", clinician_id)
+        except Exception:
+            return False
+
+        return normalize_email(entity.get("email", "")) in self.admin_clinician_emails
 
     def list_clinicians(self):
         entities = self._clinicians().query_entities(query_filter="PartitionKey eq 'CLINICIAN'")
@@ -450,9 +466,17 @@ class TableBackedAppStore:
             "firstName": entity.get("firstName", ""),
             "lastName": entity.get("lastName", ""),
             "email": entity.get("email", ""),
+            "isAdmin": normalize_email(entity.get("email", "")) in self.admin_clinician_emails,
             "createdAt": entity.get("createdAt", ""),
             "updatedAt": entity.get("updatedAt", ""),
         }
+
+    def clinician_can_access_patient(self, clinician_id, patient_id):
+        if self.is_admin_clinician(clinician_id):
+            return bool(self.get_patient_record(patient_id))
+
+        record = self.get_patient_record(patient_id)
+        return bool(record and record.get("clinicianId") == clinician_id)
 
     def _find_patient_entity(self, patient_id):
         normalized_id = normalize_patient_id(patient_id)
@@ -751,10 +775,13 @@ class TableBackedAppStore:
         }
 
     def get_clinician_patients(self, clinician_id):
-        entities = self._patients().query_entities(
-            query_filter="PartitionKey eq @clinicianId",
-            parameters={"clinicianId": clinician_id},
-        )
+        if self.is_admin_clinician(clinician_id):
+            entities = self._patients().query_entities()
+        else:
+            entities = self._patients().query_entities(
+                query_filter="PartitionKey eq @clinicianId",
+                parameters={"clinicianId": clinician_id},
+            )
         patients = []
         for entity in entities:
             patients.append(
@@ -763,7 +790,7 @@ class TableBackedAppStore:
                     "firstName": entity.get("firstName", ""),
                     "lastName": entity.get("lastName", ""),
                     "email": entity.get("email", ""),
-                    "clinicianId": clinician_id,
+                    "clinicianId": entity.get("clinicianId", entity.get("PartitionKey", "")),
                     "completedSessions": int(entity.get("completedSessions", 0) or 0),
                     "streakCount": int(entity.get("streakCount", 0) or 0),
                     "lastCompletedOn": entity.get("lastCompletedOn", ""),

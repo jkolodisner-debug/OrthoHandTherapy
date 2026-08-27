@@ -358,7 +358,7 @@ def clinician_patient(req: func.HttpRequest) -> func.HttpResponse:
     clinician_id = (req.route_params.get("clinicianId") or "").strip()
     patient_id = req.route_params.get("patientId") or ""
     record = store.get_patient_record(patient_id)
-    if not record or record.get("clinicianId") != clinician_id:
+    if not record or not store.clinician_can_access_patient(clinician_id, patient_id):
         return error_response("Patient ID is not associated with this clinician account.", status_code=404)
     return json_response({"ok": True, "patient": record})
 
@@ -463,7 +463,7 @@ def clinician_patient_trends(req: func.HttpRequest) -> func.HttpResponse:
     clinician_id = (req.route_params.get("clinicianId") or "").strip()
     patient_id = req.route_params.get("patientId") or ""
     record = store.get_patient_record(patient_id)
-    if not record or record.get("clinicianId") != clinician_id:
+    if not record or not store.clinician_can_access_patient(clinician_id, patient_id):
         return error_response("Patient ID is not associated with this clinician account.", status_code=404)
 
     return json_response({"ok": True, "trends": store.get_trend_data(patient_id)})
@@ -478,7 +478,7 @@ def clinician_patient_analytics(req: func.HttpRequest) -> func.HttpResponse:
     clinician_id = (req.route_params.get("clinicianId") or "").strip()
     patient_id = req.route_params.get("patientId") or ""
     record = store.get_patient_record(patient_id)
-    if not record or record.get("clinicianId") != clinician_id:
+    if not record or not store.clinician_can_access_patient(clinician_id, patient_id):
         return error_response("Patient ID is not associated with this clinician account.", status_code=404)
 
     return json_response({"ok": True, "analytics": store.get_patient_analytics(patient_id)})
