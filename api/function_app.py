@@ -140,7 +140,7 @@ def forgot_clinician_password(req: func.HttpRequest) -> func.HttpResponse:
     if reset_request:
         try:
             send_clinician_reset_email(reset_request["email"], reset_request["token"])
-        except RuntimeError as exc:
+        except Exception as exc:
             return error_response(str(exc), status_code=500)
 
     return json_response(
@@ -183,7 +183,7 @@ def forgot_patient_password(req: func.HttpRequest) -> func.HttpResponse:
     if reset_request:
         try:
             send_patient_reset_email(reset_request["email"], reset_request["token"])
-        except RuntimeError as exc:
+        except Exception as exc:
             return error_response(str(exc), status_code=500)
 
     return json_response(
