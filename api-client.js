@@ -286,6 +286,22 @@ async function apiResetClinicianPasswordWithToken({ token, newPassword }) {
   return payload.clinician;
 }
 
+async function apiRequestPatientPasswordReset(email) {
+  const payload = await apiRequest("/patient/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email })
+  });
+  return payload.message || "If that email matches a patient account, a reset link has been sent.";
+}
+
+async function apiResetPatientPasswordWithToken({ token, newPassword }) {
+  const payload = await apiRequest("/patient/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, newPassword })
+  });
+  return payload.patient;
+}
+
 async function apiFetchClinicianPatients() {
   const clinicianId = getCurrentClinicianId();
   if (!clinicianId) {

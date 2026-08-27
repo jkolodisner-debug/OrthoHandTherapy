@@ -389,6 +389,59 @@ class TableBackedAppStore:
         self._clinicians().upsert_entity(entity, mode=UpdateMode.REPLACE)
         return self._serialize_clinician(entity)
 
+    def create_patient_reset_token(self, email):
+        entity = self.find_patient_by_email(email)
+        if not entity:
+            return None
+
+        token = secrets.token_urlsafe(32)
+        entity["resetTokenHash"] = hash_reset_token(token)
+        entity["resetTokenExpiresAt"] = (utc_now() + timedelta(minutes=self.reset_password_ttl_minutes)).isoformat()
+        entity["updatedAt"] = utc_now_iso()
+        self._patients().upsert_entity(entity, mode=UpdateMode.MERGE)
+        return {
+            "token": token,
+            "email": entity.get("email", ""),
+            "expiresAt": entity["resetTokenExpiresAt"],
+        }
+
+    def reset_patient_password_with_token(self, token, new_password):
+        if not token:
+            raise ValueError("Reset token is required.")
+
+        if not new_password or len(new_password) < 8:
+            raise ValueError("New password must be at least 8 characters.")
+
+        token_hash = hash_reset_token(token)
+        entities = self._patients().query_entities(
+            query_filter="resetTokenHash eq @tokenHash",
+            parameters={"tokenHash": token_hash},
+        )
+        entity = next(iter(entities), None)
+        if not entity:
+            raise ValueError("This reset link is invalid or has already been used.")
+
+        expires_at = entity.get("resetTokenExpiresAt", "")
+        if not expires_at:
+            raise ValueError("This reset link is invalid or has already been used.")
+
+        try:
+            expires_at_value = datetime.fromisoformat(expires_at)
+        except ValueError as exc:
+            raise ValueError("This reset link is invalid or has already been used.") from exc
+
+        if expires_at_value <= utc_now():
+            raise ValueError("This reset link has expired. Request a new one.")
+
+        password_data = hash_password(new_password)
+        entity["passwordHash"] = password_data["hash"]
+        entity["passwordSalt"] = password_data["salt"]
+        entity["resetTokenHash"] = ""
+        entity["resetTokenExpiresAt"] = ""
+        entity["updatedAt"] = utc_now_iso()
+        self._patients().upsert_entity(entity, mode=UpdateMode.MERGE)
+        return self.get_patient_record(entity["RowKey"])
+
     def _serialize_clinician(self, entity):
         return {
             "clinicianId": entity["RowKey"],

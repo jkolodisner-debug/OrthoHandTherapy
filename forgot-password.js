@@ -1,5 +1,6 @@
 const forgotPasswordParams = new URLSearchParams(window.location.search);
 const resetToken = forgotPasswordParams.get("token") || "";
+const resetRole = (forgotPasswordParams.get("role") || "clinician").toLowerCase();
 
 const forgotPasswordEyebrow = document.querySelector("#forgot-password-eyebrow");
 const forgotPasswordTitle = document.querySelector("#forgot-password-title");
@@ -12,6 +13,13 @@ const forgotPasswordNew = document.querySelector("#forgot-password-new");
 const forgotPasswordConfirm = document.querySelector("#forgot-password-confirm");
 const forgotPasswordNewToggle = document.querySelector("#forgot-password-new-toggle");
 const forgotPasswordConfirmToggle = document.querySelector("#forgot-password-confirm-toggle");
+const forgotPasswordBackLink = document.querySelector("#forgot-password-back-link");
+
+const isPatientReset = resetRole === "patient";
+const accountLabel = isPatientReset ? "patient" : "clinician";
+const returnPath = isPatientReset ? "./patient-returning.html" : "./clinician-signin.html";
+
+forgotPasswordBackLink.href = returnPath;
 
 function attachPasswordToggle(button, input) {
   button.addEventListener("click", () => {
@@ -25,13 +33,15 @@ attachPasswordToggle(forgotPasswordNewToggle, forgotPasswordNew);
 attachPasswordToggle(forgotPasswordConfirmToggle, forgotPasswordConfirm);
 
 if (resetToken) {
-  forgotPasswordEyebrow.textContent = "Reset clinician password";
+  forgotPasswordEyebrow.textContent = `Reset ${accountLabel} password`;
   forgotPasswordTitle.textContent = "Choose a new password";
   forgotPasswordSupportCopy.textContent =
     "Enter your new password below. This secure reset link can only be used once.";
   forgotPasswordRequestForm.classList.add("hidden");
   forgotPasswordResetForm.classList.remove("hidden");
 } else {
+  forgotPasswordEyebrow.textContent = `${accountLabel[0].toUpperCase()}${accountLabel.slice(1)} access`;
+  forgotPasswordSupportCopy.textContent = `Enter the ${accountLabel} email tied to your account and we will send a secure reset link.`;
   forgotPasswordRequestForm.classList.remove("hidden");
   forgotPasswordResetForm.classList.add("hidden");
 }
@@ -40,13 +50,15 @@ forgotPasswordRequestForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const email = forgotPasswordEmail.value.trim();
   if (!email) {
-    forgotPasswordMessage.textContent = "Enter the clinician email tied to your account.";
+    forgotPasswordMessage.textContent = `Enter the ${accountLabel} email tied to your account.`;
     return;
   }
 
   forgotPasswordMessage.textContent = "Sending reset link...";
   try {
-    const message = await apiRequestClinicianPasswordReset(email);
+    const message = isPatientReset
+      ? await apiRequestPatientPasswordReset(email)
+      : await apiRequestClinicianPasswordReset(email);
     forgotPasswordMessage.textContent = message;
     forgotPasswordRequestForm.reset();
   } catch (error) {
@@ -78,14 +90,21 @@ forgotPasswordResetForm.addEventListener("submit", async (event) => {
 
   forgotPasswordMessage.textContent = "Saving new password...";
   try {
-    await apiResetClinicianPasswordWithToken({
-      token: resetToken,
-      newPassword: forgotPasswordNew.value
-    });
+    if (isPatientReset) {
+      await apiResetPatientPasswordWithToken({
+        token: resetToken,
+        newPassword: forgotPasswordNew.value
+      });
+    } else {
+      await apiResetClinicianPasswordWithToken({
+        token: resetToken,
+        newPassword: forgotPasswordNew.value
+      });
+    }
     forgotPasswordMessage.textContent = "Your password has been updated. Redirecting to sign in...";
     forgotPasswordResetForm.reset();
     window.setTimeout(() => {
-      window.location.href = "./clinician-signin.html";
+      window.location.href = returnPath;
     }, 1200);
   } catch (error) {
     forgotPasswordMessage.textContent = error.message;
