@@ -34,6 +34,10 @@
             <span>Confirm password</span>
             <input id="patient-signup-confirm" type="password" minlength="8" required autocomplete="new-password" />
           </label>
+          <label class="remember-choice">
+            <input id="patient-signup-remember" type="checkbox" />
+            <span>Remember me on this device</span>
+          </label>
           <button class="primary-button large-button" type="submit">Continue</button>
         </form>
         <p class="completion-message" id="patient-access-message"></p>
@@ -49,12 +53,8 @@
           <label class="builder-field">
             <span>Physician</span>
             <select id="patient-clinician-select" required>
-              <option value="">Choose your physician</option>
+              <option value="">Loading physicians...</option>
             </select>
-          </label>
-          <label class="remember-choice">
-            <input id="activation-remember" type="checkbox" />
-            <span>Remember me on this device</span>
           </label>
           <button class="primary-button large-button" type="submit">Create account</button>
           <button class="secondary-button large-button" id="patient-clinician-back" type="button">Back</button>
