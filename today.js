@@ -189,7 +189,7 @@ async function renderToday() {
     const bonusStep = item.querySelector(".weekly-bonus-step");
     const bonusLabel = item.querySelector(".weekly-bonus-label");
     const entry = todayLog[assignedItem.id] || {};
-    const libraryItem = EXERCISE_LIBRARY.find((exercise) => exercise.id === assignedItem.id);
+    const libraryItem = findLibraryItemForAssignedItem(assignedItem);
     const weeklyTarget = parseWeeklyFrequency(assignedItem.default_frequency);
     const minimumSets = parseMinimumSetCount(assignedItem.default_sets_reps_duration);
     let completedSetCount = Boolean(entry.patient_checkoff)

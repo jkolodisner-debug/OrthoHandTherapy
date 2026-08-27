@@ -211,6 +211,39 @@ const EXERCISE_LIBRARY = CATEGORY_DEFINITIONS.flatMap((category) =>
   category.items.map((name) => makeLibraryItem(category, name))
 );
 
+function findLibraryItemForAssignedItem(item) {
+  if (!item) {
+    return null;
+  }
+
+  const normalizedId = `${item.id || ""}`.trim();
+  if (normalizedId) {
+    const idMatch = EXERCISE_LIBRARY.find((exercise) => exercise.id === normalizedId);
+    if (idMatch) {
+      return idMatch;
+    }
+  }
+
+  const normalizedName = `${item.name || ""}`.trim().toLowerCase();
+  const normalizedCategoryKey = `${item.categoryKey || ""}`.trim().toLowerCase();
+  const normalizedCategory = `${item.category || ""}`.trim().toLowerCase();
+
+  return EXERCISE_LIBRARY.find((exercise) => {
+    const exerciseName = `${exercise.name || ""}`.trim().toLowerCase();
+    const exerciseCategoryKey = `${exercise.categoryKey || ""}`.trim().toLowerCase();
+    const exerciseCategory = `${exercise.category || ""}`.trim().toLowerCase();
+    return (
+      normalizedName &&
+      exerciseName === normalizedName &&
+      (
+        (normalizedCategoryKey && exerciseCategoryKey === normalizedCategoryKey) ||
+        (normalizedCategory && exerciseCategory === normalizedCategory) ||
+        (!normalizedCategoryKey && !normalizedCategory)
+      )
+    );
+  }) || null;
+}
+
 function defaultClinicianProfile() {
   return {
     firstName: "",

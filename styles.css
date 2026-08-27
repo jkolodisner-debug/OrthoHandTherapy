@@ -1667,7 +1667,7 @@ h2 {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #c7352a 0%, #e97824 32%, #ab0420 64%, #26843b 100%);
+  background: linear-gradient(90deg, #9f1d35 0%, #c84a2f 38%, #d46f33 100%);
   clip-path: inset(0 calc(100% - var(--progress, 0%)) 0 0);
   box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
   transition: clip-path 240ms ease;
