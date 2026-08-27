@@ -1,14 +1,15 @@
 const patientSignupForm = document.querySelector("#patient-signup-form");
+const patientClinicianOverlay = document.querySelector("#patient-clinician-overlay");
 const patientClinicianForm = document.querySelector("#patient-clinician-form");
 const patientSignupEmail = document.querySelector("#patient-signup-email");
 const patientSignupPassword = document.querySelector("#patient-signup-password");
 const patientSignupConfirm = document.querySelector("#patient-signup-confirm");
 const patientClinicianSelect = document.querySelector("#patient-clinician-select");
-const patientGeneratedId = document.querySelector("#patient-generated-id");
 const activationRemember = document.querySelector("#activation-remember");
 const patientClinicianBack = document.querySelector("#patient-clinician-back");
 const patientSignupSupportCopy = document.querySelector("#patient-signup-support-copy");
 const patientAccessMessage = document.querySelector("#patient-access-message");
+const patientClinicianMessage = document.querySelector("#patient-clinician-message");
 
 let pendingPatientSignup = null;
 let clinicianOptionsLoaded = false;
@@ -19,17 +20,14 @@ function showPatientSignupStep() {
   patientSignupSupportCopy.textContent = "Start with your email and password, then choose your physician.";
   patientSignupForm.hidden = false;
   patientSignupForm.classList.remove("hidden");
-  patientClinicianForm.hidden = true;
-  patientClinicianForm.classList.add("hidden");
+  patientClinicianOverlay.hidden = true;
+  patientClinicianOverlay.classList.add("hidden");
 }
 
 async function showPatientClinicianStep() {
-  patientSignupSupportCopy.textContent = "Choose your physician and we will assign your patient ID automatically.";
-  patientSignupForm.hidden = true;
-  patientSignupForm.classList.add("hidden");
-  patientClinicianForm.hidden = false;
-  patientClinicianForm.classList.remove("hidden");
-  patientGeneratedId.value = "Will be assigned after you choose your physician";
+  patientClinicianMessage.textContent = "";
+  patientClinicianOverlay.hidden = false;
+  patientClinicianOverlay.classList.remove("hidden");
 
   if (!clinicianOptionsLoaded) {
     const clinicians = await apiFetchClinicians();
@@ -78,7 +76,7 @@ patientSignupForm.addEventListener("submit", (event) => {
 });
 
 patientClinicianBack.addEventListener("click", () => {
-  patientAccessMessage.textContent = "";
+  patientClinicianMessage.textContent = "";
   showPatientSignupStep();
 });
 
@@ -90,24 +88,22 @@ patientClinicianForm.addEventListener("submit", async (event) => {
     return;
   }
   if (!patientClinicianSelect.value) {
-    patientAccessMessage.textContent = "Choose your physician to continue.";
+    patientClinicianMessage.textContent = "Choose your physician to continue.";
     return;
   }
 
   const submitButton = patientClinicianForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
-  patientAccessMessage.textContent = "Creating your account…";
+  patientClinicianMessage.textContent = "Creating your account…";
   try {
-    const patient = await apiCreatePatientAccount({
+    await apiCreatePatientAccount({
       ...pendingPatientSignup,
       clinicianId: patientClinicianSelect.value,
       rememberOnDevice: activationRemember.checked
     });
-    patientGeneratedId.value = patient.patientId || "";
-    patientAccessMessage.textContent = `Your patient ID is ${patient.patientId}. Opening your program...`;
     window.location.href = "./progress.html";
   } catch (error) {
-    patientAccessMessage.textContent = error.message;
+    patientClinicianMessage.textContent = error.message;
     submitButton.disabled = false;
   }
 });

@@ -24,7 +24,7 @@
         <p class="eyebrow">Clinician portal</p>
         <h1>Step 2: Edit exercise settings</h1>
         <p class="support-copy">
-          Open only the categories you selected in Step 1, choose the exercises or tasks you want assigned, and then save to generate or update the patient ID.
+          Open only the categories you selected in Step 1, choose the exercises or tasks you want assigned, and then save to update this patient's plan.
         </p>
 
         <div class="status-header-card">
@@ -66,10 +66,9 @@
 
     <div class="completion-overlay hidden" id="patient-id-overlay" aria-live="polite">
       <div class="completion-popup partial-popup">
-        <span class="completion-badge">Create patient ID</span>
-        <h2>Patient ID created</h2>
-        <p>Share this code with the patient so they can open their assigned checklist.</p>
-        <div class="code-pill" id="created-patient-id">HND-XXXXXX</div>
+        <span class="completion-badge">Plan updated</span>
+        <h2>Patient plan saved</h2>
+        <p>The assigned exercises and settings were updated for this patient.</p>
         <div class="popup-actions">
           <button class="primary-button popup-button" id="return-portal-button" type="button">Return to clinician portal</button>
         </div>
@@ -148,6 +147,6 @@
     <script src="data.js?v=30"></script>
     <script src="app-config.js?v=2"></script>
     <script src="api-client.js?v=32"></script>
-    <script src="plan-builder.js?v=15"></script>
+    <script src="plan-builder.js?v=16"></script>
   </body>
 </html>

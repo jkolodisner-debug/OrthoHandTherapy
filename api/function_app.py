@@ -228,23 +228,7 @@ def clinician_patients(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="clinicians/{clinicianId}/patients/invite", methods=["POST"])
 def create_patient_invitation(req: func.HttpRequest) -> func.HttpResponse:
-    store, error = store_or_error()
-    if error:
-        return error
-
-    clinician_id = (req.route_params.get("clinicianId") or "").strip()
-    payload = request_json(req)
-    selected_categories = payload.get("selectedCategories") or []
-    assigned_items = payload.get("assignedItems") or []
-    if not clinician_id:
-        return error_response("Clinician ID is required.")
-    if not selected_categories or not assigned_items:
-        return error_response("The selected program does not contain exercises.")
-    try:
-        patient = store.enroll_patient(clinician_id, selected_categories, assigned_items)
-    except ValueError as exc:
-        return error_response(str(exc), status_code=400)
-    return json_response({"ok": True, "patient": patient}, status_code=201)
+    return error_response("Clinicians can no longer create patient IDs. Patients create their own accounts and are assigned IDs automatically.", status_code=403)
 
 
 @app.route(route="patients/signup", methods=["POST"])
@@ -323,6 +307,8 @@ def save_patient_plan(req: func.HttpRequest) -> func.HttpResponse:
 
     if not clinician_id:
         return error_response("Clinician ID is required to save a patient plan.")
+    if not patient_id:
+        return error_response("Load an existing patient before saving a plan.")
 
     if not selected_categories or not assigned_items:
         return error_response("Select at least one category and one assigned item.")

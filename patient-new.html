@@ -36,32 +36,36 @@
           </label>
           <button class="primary-button large-button" type="submit">Continue</button>
         </form>
+        <p class="completion-message" id="patient-access-message"></p>
+      </section>
+    </main>
 
-        <form class="auth-form hidden" id="patient-clinician-form" hidden>
+    <div class="patient-choice-overlay hidden" id="patient-clinician-overlay" role="dialog" aria-modal="true" aria-labelledby="patient-clinician-title">
+      <section class="patient-choice-popup">
+        <span class="sheet-pill sheet-pill-patient">Choose physician</span>
+        <h2 id="patient-clinician-title">Select your physician</h2>
+        <p>We will create your account, assign your patient ID, and connect your program automatically.</p>
+        <form class="auth-form" id="patient-clinician-form">
           <label class="builder-field">
-            <span>Select physician</span>
+            <span>Physician</span>
             <select id="patient-clinician-select" required>
               <option value="">Choose your physician</option>
             </select>
-          </label>
-          <label class="builder-field">
-            <span>Your patient ID</span>
-            <input id="patient-generated-id" type="text" readonly />
           </label>
           <label class="remember-choice">
             <input id="activation-remember" type="checkbox" />
             <span>Remember me on this device</span>
           </label>
-          <button class="primary-button large-button" type="submit">Create account and open my program</button>
+          <button class="primary-button large-button" type="submit">Create account</button>
           <button class="secondary-button large-button" id="patient-clinician-back" type="button">Back</button>
         </form>
-        <p class="completion-message" id="patient-access-message"></p>
+        <p class="completion-message" id="patient-clinician-message"></p>
       </section>
-    </main>
+    </div>
 
     <script src="data.js?v=58"></script>
     <script src="app-config.js?v=2"></script>
     <script src="api-client.js?v=64"></script>
-    <script src="patient-new.js?v=7"></script>
+    <script src="patient-new.js?v=8"></script>
   </body>
 </html>

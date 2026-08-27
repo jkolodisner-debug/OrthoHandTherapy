@@ -6,7 +6,6 @@ const builderMessage = document.querySelector("#builder-message");
 const clinicianPlanNotes = document.querySelector("#clinician-plan-notes");
 const activePatientLabel = document.querySelector("#active-patient-label");
 const patientIdOverlay = document.querySelector("#patient-id-overlay");
-const createdPatientId = document.querySelector("#created-patient-id");
 const returnPortalButton = document.querySelector("#return-portal-button");
 
 let activeRecord = getActivePatientRecord();
@@ -183,7 +182,6 @@ savePlanButton.addEventListener("click", async () => {
     });
 
     builderMessage.textContent = "Assigned plan saved.";
-    createdPatientId.textContent = savedRecord.patientId;
     activeRecord = savedRecord;
     patientIdOverlay.classList.remove("hidden");
   } catch (error) {
@@ -208,6 +206,13 @@ async function initializePlanBuilder() {
       assignedItemIds.add(item.id);
       assignedOverrides.set(item.id, item);
     });
+  }
+
+  if (!activeRecord?.patientId) {
+    builderMessage.textContent = "Load an existing patient before editing a plan.";
+    savePlanButton.disabled = true;
+    window.location.href = "./select.html";
+    return;
   }
 
   if (selectedCategoryIds.size === 0) {

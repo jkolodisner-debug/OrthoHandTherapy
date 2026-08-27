@@ -538,7 +538,9 @@ class TableBackedAppStore:
         }
 
     def save_patient_plan(self, clinician_id, selected_categories, assigned_items, clinician_notes, patient_id=""):
-        normalized_patient_id = normalize_patient_id(patient_id) or new_patient_id()
+        normalized_patient_id = normalize_patient_id(patient_id)
+        if not normalized_patient_id:
+            raise ValueError("Load an existing patient before saving a plan.")
         existing_patient = self._find_patient_entity(normalized_patient_id)
         plan_version = 1
 
@@ -559,7 +561,10 @@ class TableBackedAppStore:
         if existing_patient and existing_patient.get("clinicianId") != clinician_id:
             raise ValueError("That patient ID is already assigned to another clinician.")
 
-        patient_entity = existing_patient or self._default_patient_record(normalized_patient_id, clinician_id)
+        if not existing_patient:
+            raise ValueError("Patient ID not found.")
+
+        patient_entity = existing_patient
         plan_entity = self._get_plan_entity(normalized_patient_id)
 
         if plan_entity:
