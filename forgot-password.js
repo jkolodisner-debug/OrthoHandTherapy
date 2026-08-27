@@ -21,6 +21,27 @@ const returnPath = isPatientReset ? "./patient-returning.html" : "./clinician-si
 
 forgotPasswordBackLink.href = returnPath;
 
+function showForgotPasswordRequestMode() {
+  forgotPasswordTitle.textContent = "Forgot your password?";
+  forgotPasswordEyebrow.textContent = `${accountLabel[0].toUpperCase()}${accountLabel.slice(1)} access`;
+  forgotPasswordSupportCopy.textContent = `Enter the ${accountLabel} email tied to your account and we will send a secure reset link.`;
+  forgotPasswordRequestForm.hidden = false;
+  forgotPasswordRequestForm.classList.remove("hidden");
+  forgotPasswordResetForm.hidden = true;
+  forgotPasswordResetForm.classList.add("hidden");
+}
+
+function showForgotPasswordResetMode() {
+  forgotPasswordEyebrow.textContent = `Reset ${accountLabel} password`;
+  forgotPasswordTitle.textContent = "Choose a new password";
+  forgotPasswordSupportCopy.textContent =
+    "Enter your new password below. This secure reset link can only be used once.";
+  forgotPasswordRequestForm.hidden = true;
+  forgotPasswordRequestForm.classList.add("hidden");
+  forgotPasswordResetForm.hidden = false;
+  forgotPasswordResetForm.classList.remove("hidden");
+}
+
 function attachPasswordToggle(button, input) {
   button.addEventListener("click", () => {
     const shouldShow = input.type === "password";
@@ -33,17 +54,9 @@ attachPasswordToggle(forgotPasswordNewToggle, forgotPasswordNew);
 attachPasswordToggle(forgotPasswordConfirmToggle, forgotPasswordConfirm);
 
 if (resetToken) {
-  forgotPasswordEyebrow.textContent = `Reset ${accountLabel} password`;
-  forgotPasswordTitle.textContent = "Choose a new password";
-  forgotPasswordSupportCopy.textContent =
-    "Enter your new password below. This secure reset link can only be used once.";
-  forgotPasswordRequestForm.classList.add("hidden");
-  forgotPasswordResetForm.classList.remove("hidden");
+  showForgotPasswordResetMode();
 } else {
-  forgotPasswordEyebrow.textContent = `${accountLabel[0].toUpperCase()}${accountLabel.slice(1)} access`;
-  forgotPasswordSupportCopy.textContent = `Enter the ${accountLabel} email tied to your account and we will send a secure reset link.`;
-  forgotPasswordRequestForm.classList.remove("hidden");
-  forgotPasswordResetForm.classList.add("hidden");
+  showForgotPasswordRequestMode();
 }
 
 forgotPasswordRequestForm.addEventListener("submit", async (event) => {

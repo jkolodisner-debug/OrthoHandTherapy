@@ -255,14 +255,22 @@ def activate_patient(req: func.HttpRequest) -> func.HttpResponse:
     payload = request_json(req)
     patient_id = (payload.get("patientId") or "").strip()
     email = (payload.get("email") or "").strip()
-    password = payload.get("password") or ""
-    if not patient_id or not email or not password:
-        return error_response("Patient ID, email, and password are required.")
+    if not patient_id or not email:
+        return error_response("Patient ID and email are required.")
     try:
-        patient = store.activate_patient(patient_id, email, password, local_date=payload.get("date"))
+        activation_request = store.activate_patient(patient_id, email)
+        send_patient_reset_email(activation_request["email"], activation_request["token"])
     except ValueError as exc:
         return error_response(str(exc), status_code=409)
-    return json_response({"ok": True, "patient": patient}, status_code=201)
+    except Exception as exc:
+        return error_response(str(exc), status_code=500)
+    return json_response(
+        {
+            "ok": True,
+            "message": "Your setup email has been sent. Open that link to create your password."
+        },
+        status_code=201,
+    )
 
 
 @app.route(route="patients/signin", methods=["POST"])

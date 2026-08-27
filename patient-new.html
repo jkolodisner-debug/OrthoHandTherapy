@@ -20,7 +20,7 @@
       <section class="card simple-card">
         <p class="eyebrow">New patient</p>
         <h1>Activate your account</h1>
-        <p class="support-copy">Enter the patient ID provided by your clinician, then add your email and create your password.</p>
+        <p class="support-copy">Enter the patient ID provided by your clinician and your email. We will send you a link to create your password.</p>
         <form class="auth-form" id="patient-activation-form">
           <label class="builder-field">
             <span>Patient ID</span>
@@ -30,19 +30,11 @@
             <span>Email</span>
             <input id="activation-email" type="email" required autocomplete="email" />
           </label>
-          <label class="builder-field">
-            <span>Create password</span>
-            <input id="activation-password" type="password" minlength="8" required autocomplete="new-password" />
-          </label>
-          <label class="builder-field">
-            <span>Confirm password</span>
-            <input id="activation-password-confirm" type="password" minlength="8" required autocomplete="new-password" />
-          </label>
           <label class="remember-choice">
             <input id="activation-remember" type="checkbox" />
             <span>Remember me on this device</span>
           </label>
-          <button class="primary-button large-button" type="submit">Create account and open my program</button>
+          <button class="primary-button large-button" type="submit">Send password setup email</button>
         </form>
         <p class="completion-message" id="patient-access-message"></p>
       </section>
