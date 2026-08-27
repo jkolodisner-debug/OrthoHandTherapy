@@ -253,18 +253,14 @@ def patient_signup(req: func.HttpRequest) -> func.HttpResponse:
     if error:
         return error
     payload = request_json(req)
-    first_name = (payload.get("firstName") or "").strip()
-    last_name = (payload.get("lastName") or "").strip()
-    patient_id = (payload.get("patientId") or "").strip()
+    clinician_id = (payload.get("clinicianId") or "").strip()
     email = (payload.get("email") or "").strip()
     password = payload.get("password") or ""
-    if not first_name or not last_name or not patient_id or not email or not password:
-        return error_response("First name, last name, patient ID, email, and password are required.")
+    if not clinician_id or not email or not password:
+        return error_response("Physician, email, and password are required.")
     try:
         patient = store.create_patient_account(
-            patient_id=patient_id,
-            first_name=first_name,
-            last_name=last_name,
+            clinician_id=clinician_id,
             email=email,
             password=password,
             local_date=payload.get("date"),

@@ -634,27 +634,25 @@ class TableBackedAppStore:
             clinician_notes="",
         )
 
-    def create_patient_account(self, patient_id, first_name, last_name, email, password, local_date=None):
-        normalized_id = normalize_patient_id(patient_id)
-        patient = self._find_patient_entity(normalized_id)
-        if not patient:
-            raise ValueError("Patient ID not found. Check the ID provided by your clinician.")
-        if patient.get("passwordHash"):
-            raise ValueError("This patient ID already has an account. Please sign in instead.")
+    def create_patient_account(self, clinician_id, email, password, local_date=None):
+        if not self.get_clinician(clinician_id):
+            raise ValueError("The selected physician account was not found.")
         if len(password or "") < 8:
             raise ValueError("Password must be at least 8 characters.")
         normalized_email = normalize_email(email)
         if not normalized_email:
             raise ValueError("Email is required.")
         existing_email_patient = self.find_patient_by_email(normalized_email)
-        if existing_email_patient and existing_email_patient.get("RowKey") != normalized_id:
+        if existing_email_patient:
             raise ValueError("That email is already being used for another patient account.")
+        patient_id = new_patient_id()
+        while self._find_patient_entity(patient_id):
+            patient_id = new_patient_id()
         now = utc_now_iso()
         password_data = hash_password(password)
+        patient = self._default_patient_record(patient_id, clinician_id)
         patient.update(
             {
-                "firstName": (first_name or "").strip(),
-                "lastName": (last_name or "").strip(),
                 "email": normalized_email,
                 "passwordHash": password_data["hash"],
                 "passwordSalt": password_data["salt"],
@@ -665,8 +663,8 @@ class TableBackedAppStore:
                 "updatedAt": now,
             }
         )
-        self._patients().upsert_entity(patient, mode=UpdateMode.MERGE)
-        return self.get_patient_record(normalized_id, local_date=local_date)
+        self._patients().create_entity(patient)
+        return self.get_patient_record(patient_id, local_date=local_date)
 
     def sign_in_patient(self, email, password, local_date=None):
         patient = self.find_patient_by_email(email)

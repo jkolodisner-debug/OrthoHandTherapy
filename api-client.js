@@ -327,10 +327,10 @@ async function apiCreatePatientInvitation({ selectedCategories, assignedItems })
   return payload.patient;
 }
 
-async function apiCreatePatientAccount({ firstName, lastName, email, password, patientId, rememberOnDevice = false }) {
+async function apiCreatePatientAccount({ email, password, clinicianId, rememberOnDevice = false }) {
   const payload = await apiRequest("/patients/signup", {
     method: "POST",
-    body: JSON.stringify({ firstName, lastName, email, password, patientId, date: getTodayIsoDate() })
+    body: JSON.stringify({ email, password, clinicianId, date: getTodayIsoDate() })
   });
   saveActivePatientRecord(payload.patient, rememberOnDevice);
   saveRememberedPatientEmail(rememberOnDevice ? payload.patient.email : "");

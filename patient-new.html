@@ -20,16 +20,8 @@
       <section class="card simple-card">
         <p class="eyebrow">New patient</p>
         <h1>Create your account</h1>
-        <p class="support-copy" id="patient-signup-support-copy">Start with your account details, then link the patient ID from your clinician.</p>
+        <p class="support-copy" id="patient-signup-support-copy">Start with your email and password, then choose your physician.</p>
         <form class="auth-form" id="patient-signup-form">
-          <label class="builder-field">
-            <span>First name</span>
-            <input id="patient-first-name" type="text" required autocomplete="given-name" />
-          </label>
-          <label class="builder-field">
-            <span>Last name</span>
-            <input id="patient-last-name" type="text" required autocomplete="family-name" />
-          </label>
           <label class="builder-field">
             <span>Email</span>
             <input id="patient-signup-email" type="email" required autocomplete="email" />
@@ -45,17 +37,23 @@
           <button class="primary-button large-button" type="submit">Continue</button>
         </form>
 
-        <form class="auth-form hidden" id="patient-link-form" hidden>
+        <form class="auth-form hidden" id="patient-clinician-form" hidden>
           <label class="builder-field">
-            <span>Patient ID</span>
-            <input id="activation-patient-id" type="text" placeholder="HND-XXXXX" required autocomplete="username" />
+            <span>Select physician</span>
+            <select id="patient-clinician-select" required>
+              <option value="">Choose your physician</option>
+            </select>
+          </label>
+          <label class="builder-field">
+            <span>Your patient ID</span>
+            <input id="patient-generated-id" type="text" readonly />
           </label>
           <label class="remember-choice">
             <input id="activation-remember" type="checkbox" />
             <span>Remember me on this device</span>
           </label>
-          <button class="primary-button large-button" type="submit">Link patient ID and open my program</button>
-          <button class="secondary-button large-button" id="patient-link-back" type="button">Back</button>
+          <button class="primary-button large-button" type="submit">Create account and open my program</button>
+          <button class="secondary-button large-button" id="patient-clinician-back" type="button">Back</button>
         </form>
         <p class="completion-message" id="patient-access-message"></p>
       </section>
@@ -63,7 +61,7 @@
 
     <script src="data.js?v=58"></script>
     <script src="app-config.js?v=2"></script>
-    <script src="api-client.js?v=63"></script>
-    <script src="patient-new.js?v=6"></script>
+    <script src="api-client.js?v=64"></script>
+    <script src="patient-new.js?v=7"></script>
   </body>
 </html>
