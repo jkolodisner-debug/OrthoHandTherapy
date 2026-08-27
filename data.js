@@ -172,6 +172,13 @@ function makeLibraryItem(category, name) {
   const defaultDose = definition.dose || "As assigned";
   const itemId = `${category.key}-${slugify(name)}`;
   const howTo = HOW_TO_BY_EXERCISE_ID[itemId] || { steps: [], tip: "" };
+  const imagePathById = {
+    "wrist-stretches-wrist-extension-stretch": "./assets/exercises/wrist-extension-stretch.png",
+    "wrist-stretches-wrist-flexion-stretch": "./assets/exercises/wrist-flexion-stretch.png",
+    "median-nerve-glides-median-nerve-glides": "./assets/exercises/median-nerve-glides.png",
+    "tendon-glides-tendon-glides-series-a": "./assets/exercises/tendon-glides-series-a.png",
+    "tendon-glides-tendon-glides-series-b": "./assets/exercises/tendon-glides-series-b.png"
+  };
 
   return {
     id: itemId,
@@ -181,7 +188,7 @@ function makeLibraryItem(category, name) {
     patient_friendly_description: `${name} is an AAOS carpal tunnel exercise selected by your clinician or physical therapist.`,
     default_frequency: defaultFrequency,
     default_sets_reps_duration: defaultDose,
-    image_path: "",
+    image_path: imagePathById[itemId] || "",
     how_to_steps: howTo.steps,
     how_to_tip: howTo.tip,
     daily_target_count: 1,

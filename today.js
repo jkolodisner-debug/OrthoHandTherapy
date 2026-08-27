@@ -104,8 +104,23 @@ function activateExerciseWheel() {
 }
 
 function parseMinimumSetCount(dose) {
-  const match = `${dose || ""}`.match(/(\d+)(?:\s*-\s*\d+)?\s+sets?/i);
-  return match ? Math.max(1, Number(match[1])) : 1;
+  const text = `${dose || ""}`.toLowerCase();
+  const perDayMatch = text.match(/(\d+)(?:\s*(?:-|to)\s*(\d+))?\s*x\s*a\s*day/);
+  if (perDayMatch) {
+    return Math.max(1, Number(perDayMatch[2] || perDayMatch[1]));
+  }
+
+  const setMatch = text.match(/(\d+)(?:\s*(?:-|to)\s*(\d+))?\s+sets?/);
+  if (setMatch) {
+    return Math.max(1, Number(setMatch[2] || setMatch[1]));
+  }
+
+  const repsPerDayMatch = text.match(/reps?\s+a\s*day/);
+  if (repsPerDayMatch) {
+    return 1;
+  }
+
+  return 1;
 }
 
 function collectCompletionRatings() {
@@ -222,8 +237,8 @@ async function renderToday() {
       setProgressLabel.textContent = completedToday
         ? "✓ Completed"
         : minimumSets === 1
-          ? "Complete set"
-          : `Complete set ${completedSetCount + 1} · ${completedSetCount} of ${minimumSets} done`;
+          ? "Complete session"
+          : `Complete session ${completedSetCount + 1} · ${completedSetCount} of ${minimumSets} done`;
       completedButton.disabled = completedToday || weeklyCount >= maximum;
     }
 
