@@ -12,6 +12,7 @@
     "ACS_EMAIL_SENDER": "DoNotReply@YOUR_DOMAIN.azurecomm.net",
     "FRONTEND_BASE_URL": "https://victorious-forest-016e84e10.7.azurestaticapps.net",
     "RESET_PASSWORD_TTL_MINUTES": "30",
-    "ADMIN_CLINICIAN_EMAILS": "you@example.com"
+    "ADMIN_CLINICIAN_EMAILS": "you@example.com",
+    "AUTH_TOKEN_SECRET": "replace-with-a-long-random-secret"
   }
 }

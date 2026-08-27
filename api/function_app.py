@@ -1,4 +1,9 @@
 import json
+import hmac
+import hashlib
+import base64
+import os
+from datetime import datetime, timedelta, timezone
 
 import azure.functions as func
 
@@ -7,6 +12,8 @@ from storage import TableBackedAppStore, today_iso
 
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
+
+TOKEN_TTL_HOURS = 24
 
 
 def json_response(payload, status_code=200):
@@ -35,6 +42,100 @@ def store_or_error():
         return None, error_response(str(exc), status_code=500)
 
 
+def token_secret():
+    secret = (
+        os.getenv("AUTH_TOKEN_SECRET", "").strip()
+        or os.getenv("STORAGE_CONNECTION_STRING", "").strip()
+        or os.getenv("AzureWebJobsStorage", "").strip()
+    )
+    if not secret:
+        raise RuntimeError("Missing AUTH_TOKEN_SECRET environment variable.")
+    return secret.encode("utf-8")
+
+
+def b64url_encode(value):
+    return base64.urlsafe_b64encode(value).decode("utf-8").rstrip("=")
+
+
+def b64url_decode(value):
+    padding = "=" * (-len(value) % 4)
+    return base64.urlsafe_b64decode(f"{value}{padding}".encode("utf-8"))
+
+
+def now_utc():
+    return datetime.now(timezone.utc)
+
+
+def create_auth_token(role, account_id):
+    payload = {
+        "role": role,
+        "accountId": account_id,
+        "exp": int((now_utc() + timedelta(hours=TOKEN_TTL_HOURS)).timestamp()),
+    }
+    payload_bytes = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    payload_b64 = b64url_encode(payload_bytes)
+    signature = hmac.new(token_secret(), payload_b64.encode("utf-8"), hashlib.sha256).digest()
+    return f"{payload_b64}.{b64url_encode(signature)}"
+
+
+def verify_auth_token(token):
+    if not token or "." not in token:
+        raise ValueError("Sign in is required.")
+
+    payload_b64, signature_b64 = token.split(".", 1)
+    expected_signature = hmac.new(token_secret(), payload_b64.encode("utf-8"), hashlib.sha256).digest()
+    provided_signature = b64url_decode(signature_b64)
+    if not hmac.compare_digest(expected_signature, provided_signature):
+        raise ValueError("Your session is invalid. Please sign in again.")
+
+    payload = json.loads(b64url_decode(payload_b64).decode("utf-8"))
+    if int(payload.get("exp", 0) or 0) <= int(now_utc().timestamp()):
+        raise ValueError("Your session has expired. Please sign in again.")
+    return payload
+
+
+def get_bearer_token(req):
+    header = req.headers.get("Authorization", "")
+    if not header.lower().startswith("bearer "):
+        return ""
+    return header[7:].strip()
+
+
+def require_auth(req, role=None):
+    try:
+        payload = verify_auth_token(get_bearer_token(req))
+    except ValueError as exc:
+        return None, error_response(str(exc), status_code=401)
+    except Exception:
+        return None, error_response("Your session is invalid. Please sign in again.", status_code=401)
+    except RuntimeError as exc:
+        return None, error_response(str(exc), status_code=500)
+
+    if role and payload.get("role") != role:
+        return None, error_response("You are not allowed to use this route.", status_code=403)
+    return payload, None
+
+
+def require_clinician_route_access(req):
+    auth, error = require_auth(req, role="clinician")
+    if error:
+        return None, error
+    clinician_id = (req.route_params.get("clinicianId") or "").strip()
+    if clinician_id and auth.get("accountId") != clinician_id:
+        return None, error_response("You are not allowed to use this clinician account.", status_code=403)
+    return auth, None
+
+
+def require_patient_route_access(req):
+    auth, error = require_auth(req, role="patient")
+    if error:
+        return None, error
+    patient_id = (req.route_params.get("patientId") or "").strip().upper()
+    if patient_id and auth.get("accountId") != patient_id:
+        return None, error_response("You are not allowed to use this patient account.", status_code=403)
+    return auth, None
+
+
 @app.route(route="clinician/signup", methods=["POST"])
 def clinician_signup(req: func.HttpRequest) -> func.HttpResponse:
     store, error = store_or_error()
@@ -56,7 +157,7 @@ def clinician_signup(req: func.HttpRequest) -> func.HttpResponse:
     except ValueError as exc:
         return error_response(str(exc), status_code=409)
 
-    return json_response({"ok": True, "clinician": clinician}, status_code=201)
+    return json_response({"ok": True, "clinician": clinician, "authToken": create_auth_token("clinician", clinician["clinicianId"])}, status_code=201)
 
 
 @app.route(route="clinician/signin", methods=["POST"])
@@ -77,11 +178,14 @@ def clinician_signin(req: func.HttpRequest) -> func.HttpResponse:
     except ValueError as exc:
         return error_response(str(exc), status_code=401)
 
-    return json_response({"ok": True, "clinician": clinician})
+    return json_response({"ok": True, "clinician": clinician, "authToken": create_auth_token("clinician", clinician["clinicianId"])})
 
 
 @app.route(route="clinicians/{clinicianId}", methods=["GET"])
 def get_clinician(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_clinician_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -107,6 +211,9 @@ def list_clinicians(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="clinicians/{clinicianId}/reset-password", methods=["POST"])
 def reset_clinician_password(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_clinician_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -214,6 +321,9 @@ def reset_patient_password_by_token(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="clinicians/{clinicianId}/patients", methods=["GET"])
 def clinician_patients(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_clinician_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -251,7 +361,7 @@ def patient_signup(req: func.HttpRequest) -> func.HttpResponse:
         )
     except ValueError as exc:
         return error_response(str(exc), status_code=409)
-    return json_response({"ok": True, "patient": patient}, status_code=201)
+    return json_response({"ok": True, "patient": patient, "authToken": create_auth_token("patient", patient["patientId"])}, status_code=201)
 
 
 @app.route(route="patients/signin", methods=["POST"])
@@ -268,11 +378,14 @@ def patient_signin(req: func.HttpRequest) -> func.HttpResponse:
         patient = store.sign_in_patient(email, password, local_date=payload.get("date"))
     except ValueError as exc:
         return error_response(str(exc), status_code=401)
-    return json_response({"ok": True, "patient": patient})
+    return json_response({"ok": True, "patient": patient, "authToken": create_auth_token("patient", patient["patientId"])})
 
 
 @app.route(route="clinicians/{clinicianId}/patients/{patientId}/notes", methods=["POST"])
 def save_clinician_note(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_clinician_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -294,12 +407,15 @@ def save_clinician_note(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="patients", methods=["POST"])
 def save_patient_plan(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_auth(req, role="clinician")
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
 
     payload = request_json(req)
-    clinician_id = (payload.get("clinicianId") or "").strip()
+    clinician_id = auth.get("accountId", "")
     selected_categories = payload.get("selectedCategories") or []
     assigned_items = payload.get("assignedItems") or []
     clinician_notes = payload.get("clinicianNotes") or ""
@@ -334,6 +450,9 @@ def enroll_patient(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="clinicians/{clinicianId}/patients/{patientId}", methods=["GET"])
 def clinician_patient(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_clinician_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -347,6 +466,9 @@ def clinician_patient(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="patients/{patientId}", methods=["GET"])
 def get_patient(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_patient_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -361,6 +483,9 @@ def get_patient(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="patients/{patientId}/progress/item", methods=["POST"])
 def update_progress_item(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_patient_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -386,6 +511,9 @@ def update_progress_item(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="patients/{patientId}/progress/complete", methods=["POST"])
 def complete_progress(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_patient_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -405,6 +533,9 @@ def complete_progress(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="patients/{patientId}/progress/reset", methods=["POST"])
 def reset_today_progress(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_patient_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -424,6 +555,9 @@ def reset_today_progress(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="patients/{patientId}/trends", methods=["GET"])
 def patient_trends(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_patient_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -438,6 +572,9 @@ def patient_trends(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="clinicians/{clinicianId}/patients/{patientId}/trends", methods=["GET"])
 def clinician_patient_trends(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_clinician_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error
@@ -453,6 +590,9 @@ def clinician_patient_trends(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="clinicians/{clinicianId}/patients/{patientId}/analytics", methods=["GET"])
 def clinician_patient_analytics(req: func.HttpRequest) -> func.HttpResponse:
+    auth, error = require_clinician_route_access(req)
+    if error:
+        return error
     store, error = store_or_error()
     if error:
         return error

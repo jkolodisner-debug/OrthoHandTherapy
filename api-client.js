@@ -4,8 +4,10 @@ const PATIENT_SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 
 const SESSION_STORAGE_KEYS = {
   clinicianSession: "orthoHandRecoveryClinicianSession",
+  clinicianAuthToken: "orthoHandRecoveryClinicianAuthToken",
   activePatientId: "orthoHandRecoveryActivePatientId",
-  activePatientRecord: "orthoHandRecoveryActivePatientRecord"
+  activePatientRecord: "orthoHandRecoveryActivePatientRecord",
+  patientAuthToken: "orthoHandRecoveryPatientAuthToken"
 };
 
 const PREFERENCE_STORAGE_KEYS = {
@@ -49,11 +51,24 @@ function saveSessionStorage(key, value, storage = localStorage) {
 }
 
 async function apiRequest(path, options = {}) {
+  const authMode = options.authMode || "auto";
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+  const authToken = authMode === "clinician"
+    ? getClinicianAuthToken()
+    : authMode === "patient"
+      ? getPatientAuthToken()
+      : authMode === "none"
+        ? ""
+        : getPatientAuthToken() || getClinicianAuthToken();
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    },
+    headers,
     ...options
   });
 
@@ -112,10 +127,28 @@ function saveClinicianSession(clinician) {
 function clearClinicianSession() {
   localStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
   sessionStorage.removeItem(SESSION_STORAGE_KEYS.clinicianSession);
+  localStorage.removeItem(SESSION_STORAGE_KEYS.clinicianAuthToken);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.clinicianAuthToken);
 }
 
 function getCurrentClinicianId() {
   return getClinicianSession()?.clinicianId || "";
+}
+
+function saveClinicianAuthToken(token) {
+  localStorage.removeItem(SESSION_STORAGE_KEYS.clinicianAuthToken);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.clinicianAuthToken);
+  if (token) {
+    localStorage.setItem(SESSION_STORAGE_KEYS.clinicianAuthToken, token);
+  }
+}
+
+function getClinicianAuthToken() {
+  return (
+    sessionStorage.getItem(SESSION_STORAGE_KEYS.clinicianAuthToken) ||
+    localStorage.getItem(SESSION_STORAGE_KEYS.clinicianAuthToken) ||
+    ""
+  );
 }
 
 function getPatientSessionStorage() {
@@ -201,6 +234,24 @@ function clearActivePatientRecord() {
 function signOutPatientSession() {
   clearActivePatientId();
   clearActivePatientRecord();
+  localStorage.removeItem(SESSION_STORAGE_KEYS.patientAuthToken);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.patientAuthToken);
+}
+
+function savePatientAuthToken(token) {
+  localStorage.removeItem(SESSION_STORAGE_KEYS.patientAuthToken);
+  sessionStorage.removeItem(SESSION_STORAGE_KEYS.patientAuthToken);
+  if (token) {
+    localStorage.setItem(SESSION_STORAGE_KEYS.patientAuthToken, token);
+  }
+}
+
+function getPatientAuthToken() {
+  return (
+    sessionStorage.getItem(SESSION_STORAGE_KEYS.patientAuthToken) ||
+    localStorage.getItem(SESSION_STORAGE_KEYS.patientAuthToken) ||
+    ""
+  );
 }
 
 function saveRememberedClinicianEmail(email) {
@@ -230,18 +281,22 @@ function getRememberedPatientEmail() {
 async function apiCreateClinicianAccount({ inviteCode, firstName, lastName, email, password }) {
   const payload = await apiRequest("/clinician/signup", {
     method: "POST",
-    body: JSON.stringify({ inviteCode, firstName, lastName, email, password })
+    body: JSON.stringify({ inviteCode, firstName, lastName, email, password }),
+    authMode: "none"
   });
-  saveClinicianSession(payload.clinician, true);
+  saveClinicianSession(payload.clinician);
+  saveClinicianAuthToken(payload.authToken || "");
   return payload.clinician;
 }
 
 async function apiSignInClinician({ email, password }) {
   const payload = await apiRequest("/clinician/signin", {
     method: "POST",
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ email, password }),
+    authMode: "none"
   });
   saveClinicianSession(payload.clinician);
+  saveClinicianAuthToken(payload.authToken || "");
   return payload.clinician;
 }
 
@@ -251,7 +306,7 @@ async function apiFetchClinicianDetails() {
     throw new Error("No clinician is signed in.");
   }
 
-  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}`);
+  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}`, { authMode: "clinician" });
   saveClinicianSession(payload.clinician);
   return payload.clinician;
 }
@@ -264,7 +319,8 @@ async function apiResetClinicianPassword(newPassword) {
 
   const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/reset-password`, {
     method: "POST",
-    body: JSON.stringify({ newPassword })
+    body: JSON.stringify({ newPassword }),
+    authMode: "clinician"
   });
   saveClinicianSession(payload.clinician);
   return payload.clinician;
@@ -273,7 +329,8 @@ async function apiResetClinicianPassword(newPassword) {
 async function apiRequestClinicianPasswordReset(email) {
   const payload = await apiRequest("/clinician/forgot-password", {
     method: "POST",
-    body: JSON.stringify({ email })
+    body: JSON.stringify({ email }),
+    authMode: "none"
   });
   return payload.message || "If that email matches a clinician account, a reset link has been sent.";
 }
@@ -281,7 +338,8 @@ async function apiRequestClinicianPasswordReset(email) {
 async function apiResetClinicianPasswordWithToken({ token, newPassword }) {
   const payload = await apiRequest("/clinician/reset-password", {
     method: "POST",
-    body: JSON.stringify({ token, newPassword })
+    body: JSON.stringify({ token, newPassword }),
+    authMode: "none"
   });
   return payload.clinician;
 }
@@ -289,7 +347,8 @@ async function apiResetClinicianPasswordWithToken({ token, newPassword }) {
 async function apiRequestPatientPasswordReset(email) {
   const payload = await apiRequest("/patient/forgot-password", {
     method: "POST",
-    body: JSON.stringify({ email })
+    body: JSON.stringify({ email }),
+    authMode: "none"
   });
   return payload.message || "If that email matches a patient account, a reset link has been sent.";
 }
@@ -297,7 +356,8 @@ async function apiRequestPatientPasswordReset(email) {
 async function apiResetPatientPasswordWithToken({ token, newPassword }) {
   const payload = await apiRequest("/patient/reset-password", {
     method: "POST",
-    body: JSON.stringify({ token, newPassword })
+    body: JSON.stringify({ token, newPassword }),
+    authMode: "none"
   });
   return payload.patient;
 }
@@ -308,12 +368,12 @@ async function apiFetchClinicianPatients() {
     return [];
   }
 
-  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/patients`);
+  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/patients`, { authMode: "clinician" });
   return payload.patients || [];
 }
 
 async function apiFetchClinicians() {
-  const payload = await apiRequest("/clinicians");
+  const payload = await apiRequest("/clinicians", { authMode: "none" });
   return payload.clinicians || [];
 }
 
@@ -322,7 +382,8 @@ async function apiCreatePatientInvitation({ selectedCategories, assignedItems })
   if (!clinicianId) throw new Error("Sign in as a clinician first.");
   const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/patients/invite`, {
     method: "POST",
-    body: JSON.stringify({ selectedCategories, assignedItems })
+    body: JSON.stringify({ selectedCategories, assignedItems }),
+    authMode: "clinician"
   });
   return payload.patient;
 }
@@ -330,8 +391,10 @@ async function apiCreatePatientInvitation({ selectedCategories, assignedItems })
 async function apiCreatePatientAccount({ email, password, clinicianId, rememberOnDevice = false }) {
   const payload = await apiRequest("/patients/signup", {
     method: "POST",
-    body: JSON.stringify({ email, password, clinicianId, date: getTodayIsoDate() })
+    body: JSON.stringify({ email, password, clinicianId, date: getTodayIsoDate() }),
+    authMode: "none"
   });
+  savePatientAuthToken(payload.authToken || "");
   saveActivePatientRecord(payload.patient, rememberOnDevice);
   saveRememberedPatientEmail(rememberOnDevice ? payload.patient.email : "");
   return payload.patient;
@@ -340,8 +403,10 @@ async function apiCreatePatientAccount({ email, password, clinicianId, rememberO
 async function apiSignInPatient({ email, password, rememberOnDevice = false }) {
   const payload = await apiRequest("/patients/signin", {
     method: "POST",
-    body: JSON.stringify({ email, password, date: getTodayIsoDate() })
+    body: JSON.stringify({ email, password, date: getTodayIsoDate() }),
+    authMode: "none"
   });
+  savePatientAuthToken(payload.authToken || "");
   saveActivePatientRecord(payload.patient, rememberOnDevice);
   saveRememberedPatientEmail(rememberOnDevice ? payload.patient.email : "");
   return payload.patient;
@@ -353,19 +418,19 @@ async function apiFetchClinicianPatientRecord(patientId) {
     throw new Error("No clinician is signed in.");
   }
   const normalized = (patientId || "").trim().toUpperCase();
-  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(normalized)}`);
+  const payload = await apiRequest(`/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(normalized)}`, { authMode: "clinician" });
   saveActivePatientRecord(payload.patient);
   return payload.patient;
 }
 
 async function apiFetchPatientRecord(patientId) {
-  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}?date=${encodeURIComponent(getTodayIsoDate())}`);
+  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}?date=${encodeURIComponent(getTodayIsoDate())}`, { authMode: "patient" });
   saveActivePatientRecord(payload.patient);
   return payload.patient;
 }
 
 async function apiFetchPatientRecordWithPreference(patientId, rememberOnDevice) {
-  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}?date=${encodeURIComponent(getTodayIsoDate())}`);
+  const payload = await apiRequest(`/patients/${encodeURIComponent((patientId || "").trim().toUpperCase())}?date=${encodeURIComponent(getTodayIsoDate())}`, { authMode: "patient" });
   saveActivePatientRecord(payload.patient, rememberOnDevice);
   return payload.patient;
 }
@@ -383,8 +448,8 @@ async function apiSavePatientPlan({ patientId, selectedCategories, assignedItems
   const clinicianId = getCurrentClinicianId();
   const payload = await apiRequest("/patients", {
     method: "POST",
+    authMode: "clinician",
     body: JSON.stringify({
-      clinicianId,
       patientId,
       selectedCategories,
       assignedItems,
@@ -401,7 +466,8 @@ async function apiSaveClinicianNote({ patientId, clinicianNotes }) {
     `/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(patientId)}/notes`,
     {
       method: "POST",
-      body: JSON.stringify({ clinicianNotes })
+      body: JSON.stringify({ clinicianNotes }),
+      authMode: "clinician"
     }
   );
   saveActivePatientRecord(payload.patient);
@@ -411,6 +477,7 @@ async function apiSaveClinicianNote({ patientId, clinicianNotes }) {
 async function apiUpdatePatientItemLog({ patientId, itemId, patch, date }) {
   return apiRequest(`/patients/${encodeURIComponent(patientId)}/progress/item`, {
     method: "POST",
+    authMode: "patient",
     body: JSON.stringify({
       itemId,
       date: date || getTodayIsoDate(),
@@ -422,7 +489,8 @@ async function apiUpdatePatientItemLog({ patientId, itemId, patch, date }) {
 async function apiCompletePatientSession(patientId) {
   const payload = await apiRequest(`/patients/${encodeURIComponent(patientId)}/progress/complete`, {
     method: "POST",
-    body: JSON.stringify({ date: getTodayIsoDate() })
+    body: JSON.stringify({ date: getTodayIsoDate() }),
+    authMode: "patient"
   });
   return payload.progress;
 }
@@ -430,7 +498,8 @@ async function apiCompletePatientSession(patientId) {
 async function apiResetPatientDailyProgress(patientId) {
   const payload = await apiRequest(`/patients/${encodeURIComponent(patientId)}/progress/reset`, {
     method: "POST",
-    body: JSON.stringify({ date: getTodayIsoDate() })
+    body: JSON.stringify({ date: getTodayIsoDate() }),
+    authMode: "patient"
   });
   return payload.progress;
 }
@@ -450,7 +519,8 @@ async function apiFetchPatientAnalytics(patientId) {
     throw new Error("Physician sign-in is required to view patient analytics.");
   }
   const payload = await apiRequest(
-    `/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(patientId)}/analytics`
+    `/clinicians/${encodeURIComponent(clinicianId)}/patients/${encodeURIComponent(patientId)}/analytics`,
+    { authMode: "clinician" }
   );
   return payload.analytics || {};
 }
