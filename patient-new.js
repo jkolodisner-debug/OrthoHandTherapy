@@ -1,11 +1,12 @@
 const patientActivationForm = document.querySelector("#patient-activation-form");
 const activationPatientId = document.querySelector("#activation-patient-id");
+const activationEmail = document.querySelector("#activation-email");
 const activationPassword = document.querySelector("#activation-password");
 const activationPasswordConfirm = document.querySelector("#activation-password-confirm");
 const activationRemember = document.querySelector("#activation-remember");
 const patientAccessMessage = document.querySelector("#patient-access-message");
 
-activationPatientId.value = getRememberedPatientId();
+activationEmail.value = getRememberedPatientEmail();
 
 patientActivationForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -24,6 +25,7 @@ patientActivationForm.addEventListener("submit", async (event) => {
   try {
     await apiActivatePatient({
       patientId: activationPatientId.value.trim().toUpperCase(),
+      email: activationEmail.value.trim().toLowerCase(),
       password: activationPassword.value,
       rememberOnDevice: activationRemember.checked
     });

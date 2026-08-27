@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=56" />
+    <link rel="stylesheet" href="styles.css?v=57" />
   </head>
   <body>
     <header class="top-nav">
@@ -20,11 +20,15 @@
       <section class="card simple-card">
         <p class="eyebrow">New patient</p>
         <h1>Activate your account</h1>
-        <p class="support-copy">Enter the patient ID provided by your clinician, then create your password.</p>
+        <p class="support-copy">Enter the patient ID provided by your clinician, then add your email and create your password.</p>
         <form class="auth-form" id="patient-activation-form">
           <label class="builder-field">
             <span>Patient ID</span>
             <input id="activation-patient-id" type="text" placeholder="HND-XXXXX" required autocomplete="username" />
+          </label>
+          <label class="builder-field">
+            <span>Email</span>
+            <input id="activation-email" type="email" required autocomplete="email" />
           </label>
           <label class="builder-field">
             <span>Create password</span>
@@ -46,7 +50,7 @@
 
     <script src="data.js?v=58"></script>
     <script src="app-config.js?v=2"></script>
-    <script src="api-client.js?v=58"></script>
-    <script src="patient-new.js?v=4"></script>
+    <script src="api-client.js?v=61"></script>
+    <script src="patient-new.js?v=5"></script>
   </body>
 </html>

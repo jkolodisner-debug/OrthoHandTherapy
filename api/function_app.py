@@ -211,11 +211,12 @@ def activate_patient(req: func.HttpRequest) -> func.HttpResponse:
         return error
     payload = request_json(req)
     patient_id = (payload.get("patientId") or "").strip()
+    email = (payload.get("email") or "").strip()
     password = payload.get("password") or ""
-    if not patient_id or not password:
-        return error_response("Patient ID and password are required.")
+    if not patient_id or not email or not password:
+        return error_response("Patient ID, email, and password are required.")
     try:
-        patient = store.activate_patient(patient_id, password, local_date=payload.get("date"))
+        patient = store.activate_patient(patient_id, email, password, local_date=payload.get("date"))
     except ValueError as exc:
         return error_response(str(exc), status_code=409)
     return json_response({"ok": True, "patient": patient}, status_code=201)
@@ -227,12 +228,12 @@ def patient_signin(req: func.HttpRequest) -> func.HttpResponse:
     if error:
         return error
     payload = request_json(req)
-    patient_id = (payload.get("patientId") or "").strip()
+    email = (payload.get("email") or "").strip()
     password = payload.get("password") or ""
-    if not patient_id or not password:
-        return error_response("Patient ID and password are required.")
+    if not email or not password:
+        return error_response("Email and password are required.")
     try:
-        patient = store.sign_in_patient(patient_id, password, local_date=payload.get("date"))
+        patient = store.sign_in_patient(email, password, local_date=payload.get("date"))
     except ValueError as exc:
         return error_response(str(exc), status_code=401)
     return json_response({"ok": True, "patient": patient})

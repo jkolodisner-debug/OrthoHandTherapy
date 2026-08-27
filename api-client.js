@@ -10,7 +10,7 @@ const SESSION_STORAGE_KEYS = {
 
 const PREFERENCE_STORAGE_KEYS = {
   rememberedClinicianEmail: "orthoHandRecoveryRememberedClinicianEmail",
-  rememberedPatientId: "orthoHandRecoveryRememberedPatientId",
+  rememberedPatientEmail: "orthoHandRecoveryRememberedPatientEmail",
   patientSessionExpiresAt: "orthoHandRecoveryPatientSessionExpiresAt"
 };
 
@@ -160,7 +160,7 @@ function getActivePatientId() {
   }
 
   if (!expiresAt) {
-    const legacyExpiration = getRememberedPatientId() === patientId
+    const legacyExpiration = getRememberedPatientEmail() === (getActivePatientRecord()?.email || "")
       ? -1
       : Date.now() + PATIENT_SESSION_DURATION_MS;
     localStorage.setItem(PREFERENCE_STORAGE_KEYS.patientSessionExpiresAt, `${legacyExpiration}`);
@@ -215,16 +215,16 @@ function getRememberedClinicianEmail() {
   return localStorage.getItem(PREFERENCE_STORAGE_KEYS.rememberedClinicianEmail) || "";
 }
 
-function saveRememberedPatientId(patientId) {
-  if (patientId) {
-    localStorage.setItem(PREFERENCE_STORAGE_KEYS.rememberedPatientId, patientId);
+function saveRememberedPatientEmail(email) {
+  if (email) {
+    localStorage.setItem(PREFERENCE_STORAGE_KEYS.rememberedPatientEmail, email);
   } else {
-    localStorage.removeItem(PREFERENCE_STORAGE_KEYS.rememberedPatientId);
+    localStorage.removeItem(PREFERENCE_STORAGE_KEYS.rememberedPatientEmail);
   }
 }
 
-function getRememberedPatientId() {
-  return localStorage.getItem(PREFERENCE_STORAGE_KEYS.rememberedPatientId) || "";
+function getRememberedPatientEmail() {
+  return localStorage.getItem(PREFERENCE_STORAGE_KEYS.rememberedPatientEmail) || "";
 }
 
 async function apiCreateClinicianAccount({ inviteCode, firstName, lastName, email, password }) {
@@ -311,23 +311,23 @@ async function apiCreatePatientInvitation({ selectedCategories, assignedItems })
   return payload.patient;
 }
 
-async function apiActivatePatient({ patientId, password, rememberOnDevice = false }) {
+async function apiActivatePatient({ patientId, email, password, rememberOnDevice = false }) {
   const payload = await apiRequest("/patients/activate", {
     method: "POST",
-    body: JSON.stringify({ patientId, password, date: getTodayIsoDate() })
+    body: JSON.stringify({ patientId, email, password, date: getTodayIsoDate() })
   });
   saveActivePatientRecord(payload.patient, rememberOnDevice);
-  saveRememberedPatientId(rememberOnDevice ? payload.patient.patientId : "");
+  saveRememberedPatientEmail(rememberOnDevice ? payload.patient.email : "");
   return payload.patient;
 }
 
-async function apiSignInPatient({ patientId, password, rememberOnDevice = false }) {
+async function apiSignInPatient({ email, password, rememberOnDevice = false }) {
   const payload = await apiRequest("/patients/signin", {
     method: "POST",
-    body: JSON.stringify({ patientId, password, date: getTodayIsoDate() })
+    body: JSON.stringify({ email, password, date: getTodayIsoDate() })
   });
   saveActivePatientRecord(payload.patient, rememberOnDevice);
-  saveRememberedPatientId(rememberOnDevice ? payload.patient.patientId : "");
+  saveRememberedPatientEmail(rememberOnDevice ? payload.patient.email : "");
   return payload.patient;
 }
 

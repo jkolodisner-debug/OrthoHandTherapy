@@ -407,6 +407,17 @@ class TableBackedAppStore:
         )
         return next(iter(entities), None)
 
+    def find_patient_by_email(self, email):
+        normalized_email = normalize_email(email)
+        if not normalized_email:
+            return None
+
+        entities = self._patients().query_entities(
+            query_filter="email eq @email",
+            parameters={"email": normalized_email},
+        )
+        return next(iter(entities), None)
+
     def _get_plan_entity(self, patient_id):
         normalized_id = normalize_patient_id(patient_id)
         entities = self._plans().query_entities(
@@ -542,13 +553,19 @@ class TableBackedAppStore:
             clinician_notes="",
         )
 
-    def activate_patient(self, patient_id, password, local_date=None):
+    def activate_patient(self, patient_id, email, password, local_date=None):
         normalized_id = normalize_patient_id(patient_id)
         patient = self._find_patient_entity(normalized_id)
         if not patient:
             raise ValueError("Patient ID not found. Check the ID provided by your clinician.")
         if patient.get("passwordHash"):
             raise ValueError("This patient ID already has an account. Please sign in instead.")
+        normalized_email = normalize_email(email)
+        if not normalized_email:
+            raise ValueError("Email is required.")
+        existing_email_patient = self.find_patient_by_email(normalized_email)
+        if existing_email_patient and existing_email_patient.get("RowKey") != normalized_id:
+            raise ValueError("That email is already being used for another patient account.")
         if len(password or "") < 8:
             raise ValueError("Password must be at least 8 characters.")
 
@@ -556,6 +573,7 @@ class TableBackedAppStore:
         now = utc_now_iso()
         patient.update(
             {
+                "email": normalized_email,
                 "passwordHash": password_data["hash"],
                 "passwordSalt": password_data["salt"],
                 "accountActivated": True,
@@ -566,16 +584,15 @@ class TableBackedAppStore:
         self._patients().upsert_entity(patient, mode=UpdateMode.MERGE)
         return self.get_patient_record(normalized_id, local_date=local_date)
 
-    def sign_in_patient(self, patient_id, password, local_date=None):
-        normalized_id = normalize_patient_id(patient_id)
-        patient = self._find_patient_entity(normalized_id)
+    def sign_in_patient(self, email, password, local_date=None):
+        patient = self.find_patient_by_email(email)
         if not patient:
-            raise ValueError("Patient ID not found.")
+            raise ValueError("No patient account matches that email.")
         if not patient.get("passwordHash") or not patient.get("passwordSalt"):
-            raise ValueError("This patient ID has not been activated. Choose new patient to create a password.")
+            raise ValueError("This patient account has not been activated yet.")
         if not verify_password(password, patient["passwordSalt"], patient["passwordHash"]):
             raise ValueError("Incorrect password.")
-        return self.get_patient_record(normalized_id, local_date=local_date)
+        return self.get_patient_record(patient["RowKey"], local_date=local_date)
 
     def _repair_shifted_completion(self, patient_id, local_date, patient_entity=None):
         normalized_id = normalize_patient_id(patient_id)
@@ -658,6 +675,7 @@ class TableBackedAppStore:
 
         return {
             "patientId": normalized_id,
+            "email": patient_entity.get("email", ""),
             "clinicianId": patient_entity.get("clinicianId", patient_entity["PartitionKey"]),
             "selectedCategories": plan_payload["selectedCategories"],
             "assignedItems": plan_payload["assignedItems"],
@@ -680,6 +698,7 @@ class TableBackedAppStore:
             patients.append(
                 {
                     "patientId": entity["RowKey"],
+                    "email": entity.get("email", ""),
                     "clinicianId": clinician_id,
                     "completedSessions": int(entity.get("completedSessions", 0) or 0),
                     "streakCount": int(entity.get("streakCount", 0) or 0),
