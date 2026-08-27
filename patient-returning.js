@@ -9,7 +9,7 @@ patientRemember.checked = Boolean(rememberedPatientEmail);
 patientEmailInput.value = rememberedPatientEmail;
 
 if (getActivePatientId()) {
-  window.location.replace("./progress.html");
+  window.location.replace("./patient-portal.html");
 }
 
 patientAccessForm.addEventListener("submit", async (event) => {
@@ -23,7 +23,7 @@ patientAccessForm.addEventListener("submit", async (event) => {
       password: patientPasswordInput.value,
       rememberOnDevice: patientRemember.checked
     });
-    window.location.href = "./progress.html";
+    window.location.href = "./patient-portal.html";
   } catch (error) {
     patientAccessMessage.textContent = error.message;
     submitButton.disabled = false;

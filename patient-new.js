@@ -116,7 +116,7 @@ patientClinicianForm.addEventListener("submit", async (event) => {
       clinicianId: patientClinicianSelect.value,
       rememberOnDevice: pendingPatientSignup.rememberOnDevice
     });
-    window.location.href = "./progress.html";
+    window.location.href = "./patient-portal.html";
   } catch (error) {
     patientClinicianMessage.textContent = error.message;
     submitButton.disabled = false;

@@ -14,15 +14,23 @@ async function renderPatientPortal() {
     activeRecord = await refreshActivePatientRecord();
   }
 
-  if (!hasAssignedPlan(activeRecord)) {
+  if (!activeRecord) {
     patientCode.textContent = "Not loaded";
-    openDailyChecklist.textContent = "Enter patient ID";
+    openDailyChecklist.textContent = "Sign in to continue";
     openDailyChecklist.href = "./patient-access.html";
     openCurrentProgress.classList.add("is-disabled");
     return;
   }
 
-  patientCode.textContent = activeRecord.patientId;
+  patientCode.textContent = activeRecord.patientId || "Not loaded";
+
+  if (!hasAssignedPlan(activeRecord)) {
+    openDailyChecklist.textContent = "Plan coming soon";
+    openDailyChecklist.href = "#";
+    openDailyChecklist.classList.add("is-disabled");
+    openCurrentProgress.classList.add("is-disabled");
+    return;
+  }
 }
 
 renderPatientPortal().catch(() => {

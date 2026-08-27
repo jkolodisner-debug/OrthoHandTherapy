@@ -1,3 +1,3 @@
 if (getActivePatientId()) {
-  window.location.replace("./progress.html");
+  window.location.replace("./patient-portal.html");
 }

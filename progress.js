@@ -21,10 +21,12 @@ async function renderProgress() {
   }
 
   if (!hasAssignedPlan(activeRecord)) {
-    patientIntro.textContent = "Enter a patient ID first so the assigned plan can load for this patient.";
-    continueButton.textContent = "Enter patient ID";
-    continueButton.href = "./patient-access.html";
-    patientCode.textContent = "Not loaded";
+    patientIntro.textContent = activeRecord?.patientId
+      ? "Your patient ID has been created. Your physician can assign your program next."
+      : "Sign in to load your patient account.";
+    continueButton.textContent = activeRecord?.patientId ? "Go to patient portal" : "Sign in";
+    continueButton.href = activeRecord?.patientId ? "./patient-portal.html" : "./patient-access.html";
+    patientCode.textContent = activeRecord?.patientId || "Not loaded";
     return;
   }
 
@@ -44,8 +46,8 @@ async function renderProgress() {
 }
 
 renderProgress().catch(() => {
-  patientIntro.textContent = "Enter a patient ID first so the assigned plan can load for this patient.";
-  continueButton.textContent = "Enter patient ID";
+  patientIntro.textContent = "Sign in to load your patient account.";
+  continueButton.textContent = "Sign in";
   continueButton.href = "./patient-access.html";
   patientCode.textContent = "Not loaded";
 });

@@ -10,13 +10,13 @@ const ROLE_FLOW = {
   clinician: {
     pill: "Clinician",
     title: "Clinician access",
-    copy: "Create patient IDs, assign hand recovery exercises, and review adherence and symptom trends.",
+    copy: "Assign hand recovery exercises and review adherence and symptom trends.",
     href: "./clinician-signin.html"
   },
   patient: {
     pill: "Patient",
     title: "Patient access",
-    copy: "Use the patient ID provided by your clinician to activate or sign in to your assigned hand recovery program.",
+    copy: "Create your account or sign in to open your assigned hand recovery program.",
     href: "./patient-access.html"
   }
 };
@@ -52,7 +52,7 @@ roleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const role = button.dataset.role;
     if (role === "patient" && getActivePatientId()) {
-      window.location.href = "./progress.html";
+      window.location.href = "./patient-portal.html";
       return;
     }
     if (role === "clinician" && getCurrentClinicianId()) {
